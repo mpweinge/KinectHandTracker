@@ -57,9 +57,9 @@
 #include <GL/glext.h>
 #endif
 
-#include <glh/glh_extensions.h>
+#include "glh_extensions.h"
 
-#include <glh/glh_linear.h>
+#include "glh_linear.h"
 
 namespace glh
 {
@@ -167,8 +167,8 @@ namespace glh
 		// convenience methods
 
 #ifdef MACOS
-		void parameter(GLenum pname, int i)
-		{ glTexParameteri(target, pname, i); }
+		//void parameter(GLenum pname, int i)
+		//{ glTexParameteri(target, pname, i); }
 #endif
 
 		void parameter(GLenum pname, GLint i)

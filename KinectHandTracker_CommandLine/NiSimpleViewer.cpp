@@ -24,6 +24,7 @@
 //---------------------------------------------------------------------------
 #include "NiSimpleViewer.h"
 #include "XnOS.h"
+#include "Draw.h"
 #if (XN_PLATFORM == XN_PLATFORM_MACOSX)
 #include <GLUT/glut.h>
 #else
@@ -156,6 +157,7 @@ XnStatus SimpleViewer::Init(int argc, char **argv)
 	m_pDepthHist = new float[m_depth.GetDeviceMaxDepth() + 1];
 
 	return InitOpenGL(argc, argv);
+    //return 0;
 }
 
 XnStatus SimpleViewer::Run()
@@ -190,147 +192,11 @@ void SimpleViewer::InitOpenGLHooks()
 	glutIdleFunc(glutIdle);
 }
 
+
+
 void SimpleViewer::Display()
 {
-	XnStatus		rc = XN_STATUS_OK;
-
-	// Read a new frame
-	rc = m_rContext.WaitAnyUpdateAll();
-	if (rc != XN_STATUS_OK)
-	{
-		printf("Read failed: %s\n", xnGetStatusString(rc));
-		return;
-	}
-
-	m_depth.GetMetaData(m_depthMD);
-	m_image.GetMetaData(m_imageMD);
-
-	const XnDepthPixel* pDepth = m_depthMD.Data();
-
-	// Copied from SimpleViewer
-	// Clear the OpenGL buffers
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Setup the OpenGL viewpoint
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, GL_WIN_SIZE_X, GL_WIN_SIZE_Y, 0, -1.0, 1.0);
-
-	// Calculate the accumulative histogram (the yellow display...)
-	xnOSMemSet(m_pDepthHist, 0, m_depthMD.ZRes()*sizeof(float));
-
-	unsigned int nNumberOfPoints = 0;
-	for (XnUInt y = 0; y < m_depthMD.YRes(); ++y)
-	{
-		for (XnUInt x = 0; x < m_depthMD.XRes(); ++x, ++pDepth)
-		{
-			if (*pDepth != 0)
-			{
-				m_pDepthHist[*pDepth]++;
-				nNumberOfPoints++;
-			}
-		}
-	}
-	for (int nIndex=1; nIndex<m_depthMD.ZRes(); nIndex++)
-	{
-		m_pDepthHist[nIndex] += m_pDepthHist[nIndex-1];
-	}
-	if (nNumberOfPoints)
-	{
-		for (int nIndex=1; nIndex<m_depthMD.ZRes(); nIndex++)
-		{
-			m_pDepthHist[nIndex] = (unsigned int)(256 * (1.0f - (m_pDepthHist[nIndex] / nNumberOfPoints)));
-		}
-	}
-
-	xnOSMemSet(m_pTexMap, 0, m_nTexMapX*m_nTexMapY*sizeof(XnRGB24Pixel));
-
-	// check if we need to draw image frame to texture
-	if (m_eViewState == DISPLAY_MODE_OVERLAY ||
-		m_eViewState == DISPLAY_MODE_IMAGE)
-	{
-		const XnRGB24Pixel* pImageRow = m_imageMD.RGB24Data();
-		XnRGB24Pixel* pTexRow = m_pTexMap + m_imageMD.YOffset() * m_nTexMapX;
-
-		for (XnUInt y = 0; y < m_imageMD.YRes(); ++y)
-		{
-			const XnRGB24Pixel* pImage = pImageRow;
-			XnRGB24Pixel* pTex = pTexRow + m_imageMD.XOffset();
-
-			for (XnUInt x = 0; x < m_imageMD.XRes(); ++x, ++pImage, ++pTex)
-			{
-				*pTex = *pImage;
-			}
-
-			pImageRow += m_imageMD.XRes();
-			pTexRow += m_nTexMapX;
-		}
-	}
-
-	// check if we need to draw depth frame to texture
-	if (m_eViewState == DISPLAY_MODE_OVERLAY ||
-		m_eViewState == DISPLAY_MODE_DEPTH)
-	{
-		const XnDepthPixel* pDepthRow = m_depthMD.Data();
-		XnRGB24Pixel* pTexRow = m_pTexMap + m_depthMD.YOffset() * m_nTexMapX;
-
-		for (XnUInt y = 0; y < m_depthMD.YRes(); ++y)
-		{
-			const XnDepthPixel* pDepth = pDepthRow;
-			XnRGB24Pixel* pTex = pTexRow + m_depthMD.XOffset();
-
-			for (XnUInt x = 0; x < m_depthMD.XRes(); ++x, ++pDepth, ++pTex)
-			{
-				if (*pDepth != 0)
-				{
-					int nHistValue = m_pDepthHist[*pDepth];
-					pTex->nRed = nHistValue;
-					pTex->nGreen = nHistValue;
-					pTex->nBlue = nHistValue;
-				}
-			}
-
-			pDepthRow += m_depthMD.XRes();
-			pTexRow += m_nTexMapX;
-		}
-	}
-
-	// Create the OpenGL texture map
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_nTexMapX, m_nTexMapY, 0, GL_RGB, GL_UNSIGNED_BYTE, m_pTexMap);
-
-
-	// Display the OpenGL texture map
-	glColor4f(1,1,1,1);
-
-	glEnable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-
-	int nXRes = m_depthMD.FullXRes();
-	int nYRes = m_depthMD.FullYRes();
-
-	
-	// upper left
-	glTexCoord2f(0, 0);
-	glVertex2f(0, 0);
-	// upper right
-	glTexCoord2f((float)nXRes/(float)m_nTexMapX, 0);
-	glVertex2f(GL_WIN_SIZE_X/2, 0);
-	// bottom right
-	glTexCoord2f((float)nXRes/(float)m_nTexMapX, (float)nYRes/(float)m_nTexMapY);
-	glVertex2f(GL_WIN_SIZE_X/2, GL_WIN_SIZE_Y/2);
-	// bottom left
-	glTexCoord2f(0, (float)nYRes/(float)m_nTexMapY);
-	glVertex2f(0, GL_WIN_SIZE_Y/2);
-
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-    
-    drawColorImage(&g_DrawConfig.ImageLocation, bOverImage ? &pointerInImage : NULL);
-    
+	drawFrame();
     
 	// Subclass draw hook
 	DisplayPostDraw();

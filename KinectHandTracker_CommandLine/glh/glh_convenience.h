@@ -59,8 +59,8 @@ using namespace std;
 #include <GL/gl.h>
 #endif
 
-#include <glh/glh_linear.h>
-#include <glh/glh_extensions.h>
+#include "glh_linear.h"
+#include "glh_extensions.h"
 
 
 namespace glh

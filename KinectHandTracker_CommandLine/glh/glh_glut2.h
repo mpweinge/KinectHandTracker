@@ -57,8 +57,8 @@
 #include <GL/glut.h>
 #endif
 
-#include <glh/glh_interactors.h>
-#include <glh/glh_convenience.h>
+#include "glh_interactors.h"
+#include "glh_convenience.h"
 
 namespace glh
 {

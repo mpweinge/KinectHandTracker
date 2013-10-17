@@ -58,7 +58,7 @@ XnStatus HandViewer::Init(int argc, char **argv)
 		return rc;
 	}
 
-	return m_HandTracker.Init(startingLeftHand, startingRightHand);
+	return m_HandTracker.Init();
 }
 
 XnStatus HandViewer::Run()

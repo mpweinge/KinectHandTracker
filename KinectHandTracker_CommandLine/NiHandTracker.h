@@ -38,7 +38,7 @@ public:
 	HandTracker(xn::Context& context);
 	~HandTracker();
 
-	XnStatus Init(XnSkeletonJointTransformation startingLeftHand, XnSkeletonJointTransformation startingRightHand);
+	XnStatus Init();
 	XnStatus Run();
 
 	const TrailHistory&	GetHistory()	const	{return m_History;}

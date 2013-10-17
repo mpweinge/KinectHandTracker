@@ -21,6 +21,13 @@
 		A6395082180C5AD700051BDE /* libnimRecorder.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A639507D180C5AD600051BDE /* libnimRecorder.dylib */; };
 		A6395083180C5AD700051BDE /* libnimMockNodes.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A639507E180C5AD600051BDE /* libnimMockNodes.dylib */; };
 		A6395084180C5AD700051BDE /* libnimCodecs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A639507F180C5AD700051BDE /* libnimCodecs.dylib */; };
+		A6395088180CF28100051BDE /* Draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A6395086180CF28000051BDE /* Draw.cpp */; };
+		A6395095180CF5CD00051BDE /* Capture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A6395089180CF5C900051BDE /* Capture.cpp */; };
+		A6395096180CF5CD00051BDE /* Device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A639508B180CF5CA00051BDE /* Device.cpp */; };
+		A6395097180CF5CD00051BDE /* Keyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A639508D180CF5CB00051BDE /* Keyboard.cpp */; };
+		A6395098180CF5CD00051BDE /* Menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A639508F180CF5CC00051BDE /* Menu.cpp */; };
+		A6395099180CF5CD00051BDE /* MouseInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A6395091180CF5CC00051BDE /* MouseInput.cpp */; };
+		A639509A180CF5CD00051BDE /* Statistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A6395093180CF5CD00051BDE /* Statistics.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -143,6 +150,20 @@
 		A639507E180C5AD600051BDE /* libnimMockNodes.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libnimMockNodes.dylib; path = "../Downloads/OpenNI-Bin-Dev-MacOSX-v1.5.4.0/Lib/libnimMockNodes.dylib"; sourceTree = "<group>"; };
 		A639507F180C5AD700051BDE /* libnimCodecs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libnimCodecs.dylib; path = "../Downloads/OpenNI-Bin-Dev-MacOSX-v1.5.4.0/Lib/libnimCodecs.dylib"; sourceTree = "<group>"; };
 		A6395085180C5B2D00051BDE /* SamplesConfig.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = SamplesConfig.xml; sourceTree = "<group>"; };
+		A6395086180CF28000051BDE /* Draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Draw.cpp; sourceTree = "<group>"; };
+		A6395087180CF28100051BDE /* Draw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Draw.h; sourceTree = "<group>"; };
+		A6395089180CF5C900051BDE /* Capture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Capture.cpp; sourceTree = "<group>"; };
+		A639508A180CF5CA00051BDE /* Capture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Capture.h; sourceTree = "<group>"; };
+		A639508B180CF5CA00051BDE /* Device.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Device.cpp; sourceTree = "<group>"; };
+		A639508C180CF5CA00051BDE /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
+		A639508D180CF5CB00051BDE /* Keyboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Keyboard.cpp; sourceTree = "<group>"; };
+		A639508E180CF5CB00051BDE /* Keyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Keyboard.h; sourceTree = "<group>"; };
+		A639508F180CF5CC00051BDE /* Menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu.cpp; sourceTree = "<group>"; };
+		A6395090180CF5CC00051BDE /* Menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Menu.h; sourceTree = "<group>"; };
+		A6395091180CF5CC00051BDE /* MouseInput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MouseInput.cpp; sourceTree = "<group>"; };
+		A6395092180CF5CC00051BDE /* MouseInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MouseInput.h; sourceTree = "<group>"; };
+		A6395093180CF5CD00051BDE /* Statistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Statistics.cpp; sourceTree = "<group>"; };
+		A6395094180CF5CD00051BDE /* Statistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Statistics.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +212,18 @@
 		A6395002180C583B00051BDE /* KinectHandTracker_CommandLine */ = {
 			isa = PBXGroup;
 			children = (
+				A6395089180CF5C900051BDE /* Capture.cpp */,
+				A639508A180CF5CA00051BDE /* Capture.h */,
+				A639508B180CF5CA00051BDE /* Device.cpp */,
+				A639508C180CF5CA00051BDE /* Device.h */,
+				A639508D180CF5CB00051BDE /* Keyboard.cpp */,
+				A639508E180CF5CB00051BDE /* Keyboard.h */,
+				A639508F180CF5CC00051BDE /* Menu.cpp */,
+				A6395090180CF5CC00051BDE /* Menu.h */,
+				A6395091180CF5CC00051BDE /* MouseInput.cpp */,
+				A6395092180CF5CC00051BDE /* MouseInput.h */,
+				A6395093180CF5CD00051BDE /* Statistics.cpp */,
+				A6395094180CF5CD00051BDE /* Statistics.h */,
 				A6395085180C5B2D00051BDE /* SamplesConfig.xml */,
 				A639502F180C590B00051BDE /* Include */,
 				A6395003180C583B00051BDE /* main.cpp */,
@@ -198,6 +231,8 @@
 				A639501C180C58A500051BDE /* GL */,
 				A6395021180C58A500051BDE /* NiHandTracker.cpp */,
 				A6395022180C58A500051BDE /* NiHandTracker.h */,
+				A6395086180CF28000051BDE /* Draw.cpp */,
+				A6395087180CF28100051BDE /* Draw.h */,
 				A6395023180C58A500051BDE /* NiHandViewer.cpp */,
 				A6395024180C58A500051BDE /* NiHandViewer.h */,
 				A6395025180C58A500051BDE /* NiSimpleViewer.cpp */,
@@ -404,6 +439,13 @@
 				A639502A180C58A500051BDE /* NiHandTracker.cpp in Sources */,
 				A639502B180C58A500051BDE /* NiHandViewer.cpp in Sources */,
 				A639502C180C58A500051BDE /* NiSimpleViewer.cpp in Sources */,
+				A6395088180CF28100051BDE /* Draw.cpp in Sources */,
+				A6395095180CF5CD00051BDE /* Capture.cpp in Sources */,
+				A6395096180CF5CD00051BDE /* Device.cpp in Sources */,
+				A6395097180CF5CD00051BDE /* Keyboard.cpp in Sources */,
+				A6395098180CF5CD00051BDE /* Menu.cpp in Sources */,
+				A6395099180CF5CD00051BDE /* MouseInput.cpp in Sources */,
+				A639509A180CF5CD00051BDE /* Statistics.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

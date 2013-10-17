@@ -48,10 +48,12 @@ using namespace xn;
 // Gestures to track
 static const char			cClickStr[] = "Click";
 static const char			cWaveStr[] = "Wave";
+static const char           cRaiseHandStr[] = "RaiseHand";
 static const char* const	cGestures[] =
 {
 	cClickStr,
-	cWaveStr
+	cWaveStr,
+    cRaiseHandStr
 };
 
 //---------------------------------------------------------------------------
@@ -71,14 +73,14 @@ void XN_CALLBACK_TYPE HandTracker::Gesture_Recognized(	xn::GestureGenerator&	/*g
 {
 	printf("Gesture recognized: %s\n", strGesture);
 
-	/*HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
+	HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
 	if(sm_Instances.Find(pThis) == sm_Instances.End())
 	{
 		printf("Dead HandTracker: skipped!\n");
 		return;
 	}
-
-	pThis->m_HandsGenerator.StartTracking(*pEndPosition);*/
+    pThis->m_GestureGenerator.RemoveGesture(cRaiseHandStr);
+	pThis->m_HandsGenerator.StartTracking(*pEndPosition);
 }
 
 void XN_CALLBACK_TYPE HandTracker::Hand_Create(	xn::HandsGenerator& /*generator*/, 
@@ -129,7 +131,7 @@ void XN_CALLBACK_TYPE HandTracker::Hand_Destroy(	xn::HandsGenerator& /*generator
 													void*				pCookie)
 {
 	printf("Lost Hand: %d\n", nId);
-
+    
 	HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
 	if(sm_Instances.Find(pThis) == sm_Instances.End())
 	{
@@ -164,7 +166,7 @@ HandTracker::~HandTracker()
 	sm_Instances.Remove(it);
 }
 
-XnStatus HandTracker::Init(XnSkeletonJointTransformation leftHand, XnSkeletonJointTransformation rightHand)
+XnStatus HandTracker::Init()
 {            
 	XnStatus			rc;
 	XnCallbackHandle	chandle;
@@ -186,12 +188,12 @@ XnStatus HandTracker::Init(XnSkeletonJointTransformation leftHand, XnSkeletonJoi
 
 	// Register callbacks
 	// Using this as cookie
-	/*rc = m_GestureGenerator.RegisterGestureCallbacks(Gesture_Recognized, Gesture_Process, this, chandle);
+	rc = m_GestureGenerator.RegisterGestureCallbacks(Gesture_Recognized, Gesture_Process, this, chandle);
 	if (rc != XN_STATUS_OK)
 	{
 		printf("Unable to register gesture callbacks.");
 		return rc;
-	}*/
+	}
 
 	rc = m_HandsGenerator.RegisterHandCallbacks(Hand_Create, Hand_Update, Hand_Destroy, this, chandle);
 	if (rc != XN_STATUS_OK)
@@ -199,13 +201,6 @@ XnStatus HandTracker::Init(XnSkeletonJointTransformation leftHand, XnSkeletonJoi
 		printf("Unable to register hand callbacks.");
 		return rc;
 	}
-    
-    XnPoint3D rightHandPt;
-    rightHandPt.X = rightHand.position.position.X;
-    rightHandPt.Y = rightHand.position.position.Y;
-    rightHandPt.Z = rightHand.position.position.Z;
-    
-	rc = m_HandsGenerator.StartTracking(rightHandPt);
 
 	return XN_STATUS_OK;
 }
