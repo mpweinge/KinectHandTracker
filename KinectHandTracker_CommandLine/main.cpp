@@ -93,8 +93,9 @@ static const char           cMovingHand[] = "MovingHand";
 static const char* const	cGestures[] =
 {
 	cClickStr,
-	cWaveStr/*,
-    cRaiseHand*/
+	cWaveStr,
+    cRaiseHand,
+    cMovingHand
 };
 
 //---------------------------------------------------------------------------
@@ -125,6 +126,8 @@ GestureGenerator gGestureGenerator;
 XnBool g_bNeedPose = FALSE;
 XnChar g_strPose[20] = "";
 
+int numTrackingHands = 0;
+
 #define CHECK_RC(nRetVal, what)					    \
 if (nRetVal != XN_STATUS_OK)				    \
 {								    \
@@ -148,12 +151,12 @@ IntPair windowSize;
 // --------------------------------
 void MotionCallback(int x, int y)
 {
-	mouseInputMotion(int((double)x/windowSize.X*WIN_SIZE_X), int((double)y/windowSize.Y*WIN_SIZE_Y));
+	mouseInputMotion(int((double)x), int((double)y));
 }
 
 void MouseCallback(int button, int state, int x, int y)
 {
-	mouseInputButton(button, state, int((double)x/windowSize.X*WIN_SIZE_X), int((double)y/windowSize.Y*WIN_SIZE_Y));
+	mouseInputButton(button, state, int((double)x), int((double)y));
 }
 
 void KeyboardCallback(unsigned char key, int /*x*/, int /*y*/)
@@ -193,7 +196,7 @@ void IdleCallback()
 		}
         
 		// add to statistics
-		statisticsAddFrame();
+		//statisticsAddFrame();
 	}
     
 	if (g_bStep == TRUE)
@@ -655,7 +658,7 @@ void XN_CALLBACK_TYPE Hand_Create(	xn::HandsGenerator& /*generator*/,
                                                void*				pCookie)
 {
 	printf("New Hand: %d @ (%f,%f,%f)\n", nId, pPosition->X, pPosition->Y, pPosition->Z);
-    
+    numTrackingHands++;
 	/*HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
 	if(sm_Instances.Find(pThis) == sm_Instances.End())
 	{
@@ -697,7 +700,7 @@ void XN_CALLBACK_TYPE Hand_Destroy(	xn::HandsGenerator& /*generator*/,
                                                 void*				pCookie)
 {
 	printf("Lost Hand: %d\n", nId);
-    
+    numTrackingHands--;
 }
 
 void XN_CALLBACK_TYPE Gesture_Recognized(	xn::GestureGenerator&	/*generator*/,
@@ -706,6 +709,8 @@ void XN_CALLBACK_TYPE Gesture_Recognized(	xn::GestureGenerator&	/*generator*/,
                                                       const XnPoint3D*		pEndPosition,
                                                       void*					pCookie)
 {
+    if (numTrackingHands > 0)
+        return;
 	printf("Gesture recognized: %s\n", strGesture);
     //REMOVE_ALL_GESTURES;
      gHandsGenerator.StartTracking(*pEndPosition);
@@ -801,13 +806,17 @@ int main(int argc, char* argv[])
 	glutInitDisplayString("stencil double rgb");
 	glutInitWindowSize(WIN_SIZE_X, WIN_SIZE_Y);
 	glutCreateWindow("OpenNI Viewer");
-	glutFullScreen();
+	//glutFullScreen();
 	glutSetCursor(GLUT_CURSOR_NONE);
+    
+    glutMouseFunc(MouseCallback);
+    glutMotionFunc(MotionCallback);
     
     init_opengl();
     
     glutIdleFunc(IdleCallback);
 	glutDisplayFunc(drawFunctionMain);
+    glutPassiveMotionFunc(MotionCallback);
     
 	//createKeyboardMap();
 	//createMenu();
@@ -864,8 +873,8 @@ int main(int argc, char* argv[])
     //Look for localized changes in depth
     //If you see one, use that as a starting point for hand tracking
     
-    const DepthMetaData* pDepthMD = getDepthMetaData();
-    const XnDepthPixel* pDepth = pDepthMD->Data();
+    //const DepthMetaData* pDepthMD = getDepthMetaData();
+    //const XnDepthPixel* pDepth = pDepthMD->Data();
     //Diff this against our current depth
     
     glutMainLoop();

@@ -27,6 +27,9 @@
 #include "Keyboard.h"
 #include "Capture.h"
 #include "NiHandTracker.h"
+#include <vector>
+#include <iostream>
+#include <fstream>
 #if (XN_PLATFORM == XN_PLATFORM_MACOSX)
 	#include <GLUT/glut.h>
 	#include <OpenGL/gl.h>
@@ -119,6 +122,8 @@ typedef struct DrawUserInput
 DrawUserInput g_DrawUserInput;
 
 int g_nMaxDepth = 0;
+bool bFirstFrame = true;
+int pFirstFrame [8][6] = {0};
 
 DrawConfigPreset g_Presets[PRESET_COUNT] = 
 {
@@ -477,7 +482,7 @@ void drawSelectionChanged(SelectionState state, IntRect selection)
 	g_DrawUserInput.State = state;
 	g_DrawUserInput.Rect = selection;
 
-	if (state == SELECTION_DONE)
+	/*if (state == SELECTION_DONE)
 	{
 		// Crop depth
 		if (getDepthGenerator() != NULL && g_DrawConfig.Streams.Depth.Coloring != DEPTH_OFF)
@@ -496,7 +501,7 @@ void drawSelectionChanged(SelectionState state, IntRect selection)
 		{
 			drawCropStream(getIRGenerator(), g_DrawConfig.ImageLocation, selection, 4);
 		}
-	}
+	}*/
 }
 
 void drawCursorMoved(IntPair location)
@@ -894,7 +899,9 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 		const DepthMetaData* pDepthMD = getDepthMetaData();
 		const XnDepthPixel* pDepth = pDepthMD->Data();
 		XN_ASSERT(pDepth);
-		
+        
+        std::vector<int> diffDepthPoints;
+        
 		if (pDepthMD->FrameID() == 0)
 		{
 			return;
@@ -904,7 +911,8 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 		{
 			XnPixelStatistics* pStatistics = g_PixelStatistics;
 
-			for (XnUInt16 nY = pDepthMD->YOffset(); nY < pDepthMD->YRes() + pDepthMD->YOffset(); nY++)
+			//for (XnUInt16 nY = pDepthMD->YOffset(); nY < pDepthMD->YRes() + pDepthMD->YOffset(); nY++)
+            for (XnUInt16 nY = 0; nY < pDepthMD->YRes() ; nY++)
 			{
 				XnUInt8* pTexture = TextureMapGetLine(&g_texDepth, nY) + pDepthMD->XOffset()*4;
 				for (XnUInt16 nX = 0; nX < pDepthMD->XRes(); nX++, pTexture+=4, pStatistics++)
@@ -929,7 +937,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 					XnUInt8 nAlpha = g_DrawConfig.Streams.Depth.fTransparency*255;
 
 					XnUInt16 nColIndex;
-
+                    //g_DrawConfig.Streams.Depth.Coloring = CYCLIC_RAINBOW_HISTOGRAM;
 					switch (g_DrawConfig.Streams.Depth.Coloring)
 					{
 					case LINEAR_HISTOGRAM:
@@ -1021,6 +1029,130 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 
 		TextureMapUpdate(&g_texDepth);
 		TextureMapDraw(&g_texDepth, pLocation);
+        
+        glBegin(GL_LINES);
+        glLineWidth(3.0);
+        glColor3f( 1.0, 1.0, 1.0);
+        for (int i = 0; i < diffDepthPoints.size(); i++)
+        {
+            int xCoord = (double)diffDepthPoints[i] / pDepthMD->YRes();
+            int yCoord = diffDepthPoints[i] % pDepthMD->YRes();
+            glVertex2f( xCoord, yCoord );
+        }
+        glEnd();
+        
+        //If we don't have an initial depth reading, copy it in
+         //else
+         {
+            //They have selected a
+            if (g_DrawUserInput.State == SELECTION_DONE)
+            {
+                if (bFirstFrame)
+                {
+                    //Take a depth snapshot
+                    //Draw depth errywhere
+                    //see if our depth has changed?
+                    float averageDepth = 0;
+                    int numPointsReadIn = 0;
+                    int width = 80;
+                    int height = 80;
+                    
+                    DepthGenerator* pDepthGen = getDepthGenerator();
+                    
+                    if (pDepthGen == NULL)
+                        return;
+                    
+                    const XnDepthPixel* pDepthCopy = pDepthGen->GetDepthMap();
+                    
+                    for (int xBoxCounter = 0; xBoxCounter < 8; xBoxCounter++)
+                    {
+                        for (int yBoxCounter = 0; yBoxCounter < 6; yBoxCounter++)
+                        {
+                            numPointsReadIn = 0;
+                            averageDepth = 0;
+                            for (int i = width * xBoxCounter; i < width * (xBoxCounter + 1); i++)
+                            {
+                                for (int j = height * yBoxCounter; j < height * (yBoxCounter + 1); j++)
+                                {
+                                    numPointsReadIn++;
+                                    int newDepth = *(pDepthCopy + pDepthMD->XRes() * j + i);
+                                    
+                                    averageDepth += (float)newDepth;
+                                }
+                            }
+                            
+                            averageDepth = averageDepth / numPointsReadIn;
+                            pFirstFrame[xBoxCounter][yBoxCounter] = averageDepth;
+                        }
+                    }
+                    bFirstFrame = false;
+                }
+                else
+                {
+                    //see if our depth has changed?
+                    float averageDepth = 0;
+                    int numPointsReadIn = 0;
+                    
+                    DepthGenerator* pDepthGen = getDepthGenerator();
+                    
+                    if (pDepthGen == NULL)
+                        return;
+                    
+                    const XnDepthPixel* pDepthCopy = pDepthGen->GetDepthMap();
+                    
+                    XnUInt32 nZRes = pDepthGen->GetDeviceMaxDepth() + 1;
+                    
+                    //Draw depth errywhere
+                    int width = 80;
+                    int height = 80;
+                    for (int xBoxCounter = 0; xBoxCounter < 8; xBoxCounter++)
+                    {
+                        for (int yBoxCounter = 0; yBoxCounter < 6; yBoxCounter++)
+                        {
+                            numPointsReadIn = 0;
+                            averageDepth = 0;
+                            for (int i = width * xBoxCounter; i < width * (xBoxCounter + 1); i++)
+                            {
+                                for (int j = height * yBoxCounter; j < height * (yBoxCounter + 1); j++)
+                                {
+                                    numPointsReadIn++;
+                                    int newDepth = *(pDepthCopy + pDepthMD->XRes() * j + i);
+                                    
+                                    averageDepth += (float)newDepth;
+                                }
+                            }
+                            
+                            averageDepth = averageDepth / numPointsReadIn;
+                            
+                            if (abs(averageDepth - pFirstFrame[xBoxCounter][yBoxCounter]) > 100)
+                            {
+                                char buf[512] = "";
+                                sprintf(buf, "D: %3.0f", averageDepth);
+                                int nYLocation = height * yBoxCounter - height / 2 + 60;
+                                int nXLocation = width * xBoxCounter + 10;
+                                glColor3f(1,0,0);
+                                glRasterPos2i(nXLocation,nYLocation);
+                                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                                
+                                sprintf(buf, "I: %i", pFirstFrame[xBoxCounter][yBoxCounter]);
+                                nYLocation = height * yBoxCounter - height / 2 + 80;
+                                nXLocation = width * xBoxCounter + 10;
+                                glRasterPos2i(nXLocation,nYLocation);
+                                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                                
+                                glBegin(GL_LINE_LOOP);
+                                    glVertex2f(width * (xBoxCounter+1), height * yBoxCounter + 80) ;
+                                    glVertex2f(width * (xBoxCounter+1), height * (yBoxCounter-1) + 80);
+                                    glVertex2f(width * (xBoxCounter), height * (yBoxCounter-1) + 80);
+                                    glVertex2f(width * (xBoxCounter), height * (yBoxCounter) + 80);
+                                    glVertex2f(width * (xBoxCounter+1), height * (yBoxCounter) + 80);
+                                glEnd();
+                            }
+                        }
+                    }
+                }
+            }
+        }
 	}
 }
 
@@ -1447,6 +1579,28 @@ void drawUserInput(bool bCursor)
 
 		glDisable(GL_BLEND);
 	}
+    else if (g_DrawUserInput.State == SELECTION_DONE)
+    {
+        //Draw a box over what has been selected
+        
+        glBegin(GL_LINES);
+        {
+            glColor3f(1, 1, 0);
+            
+            glVertex2f(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uBottom);
+            glVertex2f(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uTop);
+            
+            glVertex2f(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uBottom);
+            glVertex2f (g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uBottom);
+            
+            glVertex2f(g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uTop);
+            glVertex2f(g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uBottom);
+            
+            glVertex2f(g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uTop);
+            glVertex2f(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uTop);
+        }
+        glEnd();
+    }
 }
 
 void fixLocation(IntRect* pLocation, int xRes, int yRes)

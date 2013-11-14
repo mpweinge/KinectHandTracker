@@ -49,17 +49,20 @@ using namespace xn;
 static const char			cClickStr[] = "Click";
 static const char			cWaveStr[] = "Wave";
 static const char           cRaiseHandStr[] = "RaiseHand";
+static const char           cMovingHand[] = "MovingHand";
 static const char* const	cGestures[] =
 {
 	cClickStr,
 	cWaveStr,
-    cRaiseHandStr
+    cRaiseHandStr,
+    cMovingHand
 };
 
 //---------------------------------------------------------------------------
 // Statics
 //---------------------------------------------------------------------------
 XnListT<HandTracker*>	HandTracker::sm_Instances;
+int numHandsTracking = 0;
 
 
 //---------------------------------------------------------------------------
@@ -71,15 +74,23 @@ void XN_CALLBACK_TYPE HandTracker::Gesture_Recognized(	xn::GestureGenerator&	/*g
 														const XnPoint3D*		pEndPosition, 
 														void*					pCookie)
 {
-	printf("Gesture recognized: %s\n", strGesture);
+	//printf("Gesture recognized: %s\n", strGesture);
 
+    if (numHandsTracking > 0)
+    {
+        int k;
+        k = 0;
+        return;
+    }
+    
 	HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
+    
 	if(sm_Instances.Find(pThis) == sm_Instances.End())
 	{
 		printf("Dead HandTracker: skipped!\n");
 		return;
 	}
-    pThis->m_GestureGenerator.RemoveGesture(cRaiseHandStr);
+    //pThis->m_GestureGenerator.RemoveGesture(cRaiseHandStr);
 	pThis->m_HandsGenerator.StartTracking(*pEndPosition);
 }
 
@@ -89,7 +100,7 @@ void XN_CALLBACK_TYPE HandTracker::Hand_Create(	xn::HandsGenerator& /*generator*
 												XnFloat				/*fTime*/, 
 												void*				pCookie)
 {
-	printf("New Hand: %d @ (%f,%f,%f)\n", nId, pPosition->X, pPosition->Y, pPosition->Z);
+	//printf("New Hand: %d @ (%f,%f,%f)\n", nId, pPosition->X, pPosition->Y, pPosition->Z);
 
 	HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
 	if(sm_Instances.Find(pThis) == sm_Instances.End())
@@ -99,6 +110,7 @@ void XN_CALLBACK_TYPE HandTracker::Hand_Create(	xn::HandsGenerator& /*generator*
 	}
 
 	pThis->m_History[nId].Push(*pPosition);
+    numHandsTracking++;
 }
 
 void XN_CALLBACK_TYPE HandTracker::Hand_Update(	xn::HandsGenerator& /*generator*/, 
@@ -130,7 +142,7 @@ void XN_CALLBACK_TYPE HandTracker::Hand_Destroy(	xn::HandsGenerator& /*generator
 													XnFloat				/*fTime*/, 
 													void*				pCookie)
 {
-	printf("Lost Hand: %d\n", nId);
+	//printf("Lost Hand: %d\n", nId);
     
 	HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
 	if(sm_Instances.Find(pThis) == sm_Instances.End())
@@ -141,6 +153,7 @@ void XN_CALLBACK_TYPE HandTracker::Hand_Destroy(	xn::HandsGenerator& /*generator
 
 	// Remove this user from hands history
 	pThis->m_History.Remove(nId);
+    numHandsTracking--;
 }
 
 
