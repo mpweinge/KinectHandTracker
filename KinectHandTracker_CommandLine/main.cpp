@@ -827,8 +827,8 @@ int main(int argc, char* argv[])
     
     drawInit(m_HandTracker);
     
-    mainHandTracker.Init();
-    mainHandTracker.Run();
+    //mainHandTracker.Init();
+    //mainHandTracker.Run();
     xn::ImageGenerator test;
     g_Context.FindExistingNode(XN_NODE_TYPE_IMAGE, test);
     xn::DepthGenerator depth;

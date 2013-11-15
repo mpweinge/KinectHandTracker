@@ -57,8 +57,10 @@ typedef enum SelectionState
 	SELECTION_DONE
 } SelectionState;
 
-typedef void (*SelectionRectangleChangedPtr)(SelectionState state, IntRect selection);
+typedef void (*SelectionRectangleChangedPtr)(SelectionState state, IntRect SoapSelection, IntRect TowelSelection, int iActiveSelection);
 typedef void (*CursorMovedPtr)(IntPair location);
+
+enum selectionOpen { SOAP = 0, TOWEL };
 
 // --------------------------------
 // Functions

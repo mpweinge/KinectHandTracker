@@ -63,6 +63,10 @@
 #define YUV_RGBA_BPP 4
 #define LENGTHOF(arr)			(sizeof(arr)/sizeof(arr[0]))
 
+
+#define XDepthGrid 64
+#define YDepthGrid 48
+
 // --------------------------------
 // Types
 // --------------------------------
@@ -115,7 +119,9 @@ const char* g_ImageColoring[NUM_OF_IMAGE_TYPES];
 typedef struct DrawUserInput
 {
 	SelectionState State;
-	IntRect Rect;
+	IntRect SoapRect;
+    IntRect TowelRect;
+    int CurrentSelect;
 	IntPair Cursor;
 } DrawUserInput;
 
@@ -123,7 +129,10 @@ DrawUserInput g_DrawUserInput;
 
 int g_nMaxDepth = 0;
 bool bFirstFrame = true;
-int pFirstFrame [8][6] = {0};
+int pFirstFrame [2] = {0};
+int pDepthMap [XDepthGrid][YDepthGrid] = { 0 };
+std::vector<int> DepthOnSoap;
+std::vector<int> DepthOnTowel;
 
 DrawConfigPreset g_Presets[PRESET_COUNT] = 
 {
@@ -477,10 +486,14 @@ void drawCropStream(MapGenerator* pGenerator, IntRect location, IntRect selectio
 	}
 }
 
-void drawSelectionChanged(SelectionState state, IntRect selection)
+void drawSelectionChanged(SelectionState state, IntRect SoapSelection, IntRect TowelSelection, int iActiveSelection)
 {
 	g_DrawUserInput.State = state;
-	g_DrawUserInput.Rect = selection;
+	g_DrawUserInput.SoapRect = SoapSelection;
+    g_DrawUserInput.TowelRect = TowelSelection;
+    g_DrawUserInput.CurrentSelect = iActiveSelection;
+    
+    bFirstFrame = true;
 
 	/*if (state == SELECTION_DONE)
 	{
@@ -1040,9 +1053,9 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
             glVertex2f( xCoord, yCoord );
         }
         glEnd();
-        
         //If we don't have an initial depth reading, copy it in
          //else
+        //
          {
             //They have selected a
             if (g_DrawUserInput.State == SELECTION_DONE)
@@ -1054,8 +1067,6 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     //see if our depth has changed?
                     float averageDepth = 0;
                     int numPointsReadIn = 0;
-                    int width = 80;
-                    int height = 80;
                     
                     DepthGenerator* pDepthGen = getDepthGenerator();
                     
@@ -1064,28 +1075,53 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     
                     const XnDepthPixel* pDepthCopy = pDepthGen->GetDepthMap();
                     
-                    for (int xBoxCounter = 0; xBoxCounter < 8; xBoxCounter++)
+                    //Do a snapshot of what we just read in (soap or towel)
+                    numPointsReadIn = 0;
+                    averageDepth = 0;
+                    IntRect currRect;
+                    if (g_DrawUserInput.CurrentSelect == SOAP)
+                        currRect = g_DrawUserInput.SoapRect;
+                    else
+                        currRect = g_DrawUserInput.TowelRect;
+                    
+                    for (int i = currRect.uLeft; i< currRect.uRight; i++)
                     {
-                        for (int yBoxCounter = 0; yBoxCounter < 6; yBoxCounter++)
+                        for (int j = currRect.uBottom; j < currRect.uTop; j++)
+                        {
+                            numPointsReadIn++;
+                            int newDepth = *(pDepthCopy + pDepthMD->XRes() * j + i);
+                            
+                            averageDepth += (float)newDepth;
+                        }
+                    }
+                    
+                    averageDepth = averageDepth / numPointsReadIn;
+                    pFirstFrame[g_DrawUserInput.CurrentSelect] = averageDepth;
+                    bFirstFrame = false;
+                    
+                    /*int width = 640 / XDepthGrid;
+                    int height = 480 / YDepthGrid;
+                    
+                    for (int i = 0; i < XDepthGrid; i++)
+                    {
+                        for (int j=0 ; j < YDepthGrid; j++)
                         {
                             numPointsReadIn = 0;
                             averageDepth = 0;
-                            for (int i = width * xBoxCounter; i < width * (xBoxCounter + 1); i++)
+                            for (int k = i * width; k < (i+1) * width; k++)
                             {
-                                for (int j = height * yBoxCounter; j < height * (yBoxCounter + 1); j++)
+                                for (int l = j * height; l < (j+1) * height; l++)
                                 {
                                     numPointsReadIn++;
-                                    int newDepth = *(pDepthCopy + pDepthMD->XRes() * j + i);
+                                    int newDepth = *(pDepthCopy + pDepthMD->XRes() * l + k);
                                     
                                     averageDepth += (float)newDepth;
+                                    pDepthMap[i][j] = averageDepth;
                                 }
                             }
-                            
-                            averageDepth = averageDepth / numPointsReadIn;
-                            pFirstFrame[xBoxCounter][yBoxCounter] = averageDepth;
                         }
-                    }
-                    bFirstFrame = false;
+                    }*/
+                    
                 }
                 else
                 {
@@ -1100,58 +1136,179 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     
                     const XnDepthPixel* pDepthCopy = pDepthGen->GetDepthMap();
                     
-                    XnUInt32 nZRes = pDepthGen->GetDeviceMaxDepth() + 1;
+                    numPointsReadIn = 0;
+                    averageDepth = 0;
                     
-                    //Draw depth errywhere
-                    int width = 80;
-                    int height = 80;
-                    for (int xBoxCounter = 0; xBoxCounter < 8; xBoxCounter++)
+                    IntRect currRect;
+                    for (int select = 0; select < 2; select++)
                     {
-                        for (int yBoxCounter = 0; yBoxCounter < 6; yBoxCounter++)
+                        numPointsReadIn = 0;
+                        averageDepth = 0;
+                        
+                        if (select == 0)
+                            currRect = g_DrawUserInput.SoapRect;
+                        else
+                            currRect = g_DrawUserInput.TowelRect;
+                            
+                        for (int i = currRect.uLeft; i< currRect.uRight; i++)
                         {
-                            numPointsReadIn = 0;
-                            averageDepth = 0;
-                            for (int i = width * xBoxCounter; i < width * (xBoxCounter + 1); i++)
+                            for (int j = currRect.uBottom; j < currRect.uTop; j++)
                             {
-                                for (int j = height * yBoxCounter; j < height * (yBoxCounter + 1); j++)
-                                {
-                                    numPointsReadIn++;
-                                    int newDepth = *(pDepthCopy + pDepthMD->XRes() * j + i);
-                                    
-                                    averageDepth += (float)newDepth;
-                                }
-                            }
-                            
-                            averageDepth = averageDepth / numPointsReadIn;
-                            
-                            if (abs(averageDepth - pFirstFrame[xBoxCounter][yBoxCounter]) > 100)
-                            {
-                                char buf[512] = "";
-                                sprintf(buf, "D: %3.0f", averageDepth);
-                                int nYLocation = height * yBoxCounter - height / 2 + 60;
-                                int nXLocation = width * xBoxCounter + 10;
-                                glColor3f(1,0,0);
-                                glRasterPos2i(nXLocation,nYLocation);
-                                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                                numPointsReadIn++;
+                                int newDepth = *(pDepthCopy + pDepthMD->XRes() * j + i);
                                 
-                                sprintf(buf, "I: %i", pFirstFrame[xBoxCounter][yBoxCounter]);
-                                nYLocation = height * yBoxCounter - height / 2 + 80;
-                                nXLocation = width * xBoxCounter + 10;
-                                glRasterPos2i(nXLocation,nYLocation);
-                                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
-                                
-                                glBegin(GL_LINE_LOOP);
-                                    glVertex2f(width * (xBoxCounter+1), height * yBoxCounter + 80) ;
-                                    glVertex2f(width * (xBoxCounter+1), height * (yBoxCounter-1) + 80);
-                                    glVertex2f(width * (xBoxCounter), height * (yBoxCounter-1) + 80);
-                                    glVertex2f(width * (xBoxCounter), height * (yBoxCounter) + 80);
-                                    glVertex2f(width * (xBoxCounter+1), height * (yBoxCounter) + 80);
-                                glEnd();
+                                averageDepth += (float)newDepth;
                             }
+                        }
+                        averageDepth = averageDepth / numPointsReadIn;
+                        
+                        int diff = averageDepth - pFirstFrame[select];
+                        
+                        if (select == 0)
+                        {
+                            DepthOnSoap.push_back(diff);
+                            
+                            if (DepthOnSoap.size() > 25)
+                                DepthOnSoap.erase(DepthOnSoap.begin());
+                        }
+                        else
+                        {
+                            DepthOnTowel.push_back(diff);
+                            
+                            if (DepthOnTowel.size() > 25)
+                                DepthOnTowel.erase(DepthOnTowel.begin());
                         }
                     }
                 }
+                //Put "hand above soap" message at thing
+                /*char buf[512] = "";
+                if (bSelectedRegionDepthChange)
+                {
+                    sprintf(buf, "Hand at selected region? YES");
+                }
+                else
+                {
+                    sprintf(buf, "Hand at selected region? NO");
+                }
+                int nYLocation = WIN_SIZE_Y - 60;
+                int nXLocation =  10;
+                glColor3f(1,0,0);
+                glRasterPos2i(nXLocation,nYLocation);
+                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);*/
+                
+                char buf[512] = "";
+                int nYLocation = WIN_SIZE_Y - 60;
+                int nXLocation =  10;
+                sprintf(buf, "Soap Depth Over Time: ");
+                //nYLocation += 20;
+                nXLocation =  WIN_SIZE_X - 350;
+                glColor3f(1,0,0);
+                glRasterPos2i(nXLocation,nYLocation);
+                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                
+                glBegin(GL_LINE_LOOP);
+                for (int i = 0; i < DepthOnSoap.size(); i++)
+                {
+                    glVertex2f(WIN_SIZE_X - 200 + i*5, nYLocation + DepthOnSoap[i]);
+                }
+                glEnd();
+                if (DepthOnSoap.size() > 0)
+                {
+                    if (DepthOnSoap[DepthOnSoap.size() - 1] < -5)
+                    {
+                        //Hand overtop of soap
+                        sprintf(buf, "Hand over soap");
+                        nYLocation = WIN_SIZE_Y - 80;
+                        glColor3f(1,0,0);
+                        glRasterPos2i(nXLocation,nYLocation);
+                        glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                    }
+                    else if (DepthOnSoap[DepthOnSoap.size() -1] > 5)
+                    {
+                        //Depth decreased, so must have dispensed some soap
+                        sprintf(buf, "Hand depressed soap");
+                        nYLocation = WIN_SIZE_Y - 80;
+                        glColor3f(1,0,0);
+                        glRasterPos2i(nXLocation,nYLocation);
+                        glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                    }
+                }
+                
+                sprintf(buf, "Towel Depth Over Time: ");
+                nYLocation = WIN_SIZE_Y - 60;
+                nXLocation =  WIN_SIZE_X - 850;
+                glColor3f(1,0,0);
+                glRasterPos2i(nXLocation,nYLocation);
+                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                
+                glBegin(GL_LINE_LOOP);
+                for (int i = 0; i < DepthOnTowel.size(); i++)
+                {
+                    glVertex2f(WIN_SIZE_X - 700 + i*5, nYLocation + DepthOnTowel[i]);
+                }
+                glEnd();
+                
+                if (DepthOnTowel.size() > 0)
+                {
+                    if (DepthOnTowel[DepthOnSoap.size() - 1] < -5)
+                    {
+                        //Hand overtop of soap
+                        sprintf(buf, "Hand over towel");
+                        nYLocation = WIN_SIZE_Y - 80;
+                        glColor3f(1,0,0);
+                        glRasterPos2i(nXLocation,nYLocation);
+                        glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                    }
+                    else if (DepthOnTowel[DepthOnSoap.size() -1] > 5)
+                    {
+                        //Depth decreased, so must have dispensed some soap
+                        sprintf(buf, "Towel moved");
+                        nYLocation = WIN_SIZE_Y - 80;
+                        glColor3f(1,0,0);
+                        glRasterPos2i(nXLocation,nYLocation);
+                        glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                    }
+                }
+                
+                if (!bFirstFrame)
+                {
+                    /*int numPointsReadIn = 0;
+                    float averageDepth = 0;
+                    
+                    DepthGenerator* pDepthGen = getDepthGenerator();
+                    
+                    if (pDepthGen == NULL)
+                        return;
+                    
+                    const XnDepthPixel* pDepthCopy = pDepthGen->GetDepthMap();
+                    
+                    int width = 640 / XDepthGrid;
+                    int height = 480 / YDepthGrid;
+                    
+                    for (int i = 0; i < XDepthGrid; i++)
+                    {
+                        for (int j=0 ; j < YDepthGrid; j++)
+                        {
+                            numPointsReadIn = 0;
+                            averageDepth = 0;
+                            for (int k = i * width; k < (i+1) * width; k++)
+                            {
+                                for (int l = j * height; l < (j+1) * height; l++)
+                                {
+                                    numPointsReadIn++;
+                                    int newDepth = *(pDepthCopy + pDepthMD->XRes() * l + k);
+                                    
+                                    averageDepth += (float)newDepth;
+                                    pDepthMap[i][j] = averageDepth;
+                                }
+                            }
+                        }
+                    }*/
+                }
+                
+                
             }
+    
         }
 	}
 }
@@ -1566,40 +1723,94 @@ void drawUserInput(bool bCursor)
 	// draw selection frame
 	if (g_DrawUserInput.State == SELECTION_ACTIVE)
 	{
+        
+        IntRect completedRect, drawingRect;
+        if (g_DrawUserInput.CurrentSelect == 0)
+        {
+            completedRect = g_DrawUserInput.TowelRect;
+            drawingRect = g_DrawUserInput.SoapRect;
+        }
+        else
+        {
+            completedRect = g_DrawUserInput.SoapRect;
+            drawingRect = g_DrawUserInput.TowelRect;
+        }
+        
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		
 
 		glBegin(GL_QUADS);
-		glColor4f(1, 0, 0, 0.5);
-		glVertex2i(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uTop); // Upper left
-		glVertex2i(g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uTop); // upper right
-		glVertex2i(g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uBottom); // lower right
-		glVertex2i(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uBottom); // lower left
+		glColor4f(0, 1, 1, 0.5);
+        
+		glVertex2i(drawingRect.uLeft, drawingRect.uTop); // Upper left
+		glVertex2i(drawingRect.uRight, drawingRect.uTop); // upper right
+		glVertex2i(drawingRect.uRight, drawingRect.uBottom); // lower right
+		glVertex2i(drawingRect.uLeft, drawingRect.uBottom); // lower left
 		glEnd();
 
 		glDisable(GL_BLEND);
+        
+        glBegin(GL_LINES);
+            glVertex2f(completedRect.uLeft, completedRect.uBottom);
+            glVertex2f(completedRect.uLeft, completedRect.uTop);
+            
+            glVertex2f(completedRect.uLeft, completedRect.uBottom);
+            glVertex2f(completedRect.uRight, completedRect.uBottom);
+            
+            glVertex2f(completedRect.uRight, completedRect.uTop);
+            glVertex2f(completedRect.uRight, completedRect.uBottom);
+            
+            glVertex2f(completedRect.uRight, completedRect.uTop);
+            glVertex2f(completedRect.uLeft, completedRect.uTop);
+        glEnd();
 	}
     else if (g_DrawUserInput.State == SELECTION_DONE)
     {
         //Draw a box over what has been selected
         
+        glLineWidth(2.0f);
         glBegin(GL_LINES);
         {
-            glColor3f(1, 1, 0);
-            
-            glVertex2f(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uBottom);
-            glVertex2f(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uTop);
-            
-            glVertex2f(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uBottom);
-            glVertex2f (g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uBottom);
-            
-            glVertex2f(g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uTop);
-            glVertex2f(g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uBottom);
-            
-            glVertex2f(g_DrawUserInput.Rect.uRight, g_DrawUserInput.Rect.uTop);
-            glVertex2f(g_DrawUserInput.Rect.uLeft, g_DrawUserInput.Rect.uTop);
+            glColor3f(0, 1, 1);
+            IntRect currRect;
+            for (int i = 0; i < 2; i++)
+            {
+                if (i == 0)
+                    currRect = g_DrawUserInput.SoapRect;
+                else
+                    currRect = g_DrawUserInput.TowelRect;
+                
+                glVertex2f(currRect.uLeft, currRect.uBottom);
+                glVertex2f(currRect.uLeft, currRect.uTop);
+                
+                glVertex2f(currRect.uLeft, currRect.uBottom);
+                glVertex2f(currRect.uRight, currRect.uBottom);
+                
+                glVertex2f(currRect.uRight, currRect.uTop);
+                glVertex2f(currRect.uRight, currRect.uBottom);
+                
+                glVertex2f(currRect.uRight, currRect.uTop);
+                glVertex2f(currRect.uLeft, currRect.uTop);
+            }
         }
         glEnd();
+        
+        char buf[50] = "";
+        int nYLocation = g_DrawUserInput.SoapRect.uBottom - 5;
+        sprintf(buf, "S");
+        //nYLocation += 20;
+        int nXLocation =  g_DrawUserInput.SoapRect.uLeft - 5;
+        glColor3f(0,1,1);
+        glRasterPos2i(nXLocation,nYLocation);
+        glPrintString(GLUT_BITMAP_HELVETICA_18, buf);
+        
+        nYLocation = g_DrawUserInput.TowelRect.uBottom - 5;
+        sprintf(buf, "T");
+        //nYLocation += 20;
+        nXLocation =  g_DrawUserInput.TowelRect.uLeft - 5;
+        glColor3f(0,1,1);
+        glRasterPos2i(nXLocation,nYLocation);
+        glPrintString(GLUT_BITMAP_HELVETICA_18, buf);
     }
 }
 
@@ -1835,7 +2046,7 @@ void drawFrame()
 	if (g_DrawConfig.bHelp)
 		drawHelpScreen();
     
-    DisplayPostDraw(*m_handTracker);
+    //DisplayPostDraw(*m_handTracker);
     
     glutSwapBuffers();
 }

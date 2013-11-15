@@ -44,17 +44,20 @@ typedef struct MouseInput
 
 MouseInput g_MouseInput = {SELECTION_NONE, {0,0}, {0,0}, NULL, NULL};
 
+int iActiveSelection = SOAP;
+
+IntRect Selections[2];
+
 void mouseInputCallSelection()
 {
 	if (g_MouseInput.pSelectionCallback != NULL)
 	{
-		IntRect selection;
-		selection.uBottom = XN_MIN(g_MouseInput.StartSelection.Y, g_MouseInput.LastLocation.Y);
-		selection.uTop = XN_MAX(g_MouseInput.StartSelection.Y, g_MouseInput.LastLocation.Y);
-		selection.uLeft = XN_MIN(g_MouseInput.StartSelection.X, g_MouseInput.LastLocation.X);
-		selection.uRight = XN_MAX(g_MouseInput.StartSelection.X, g_MouseInput.LastLocation.X);
+		Selections[iActiveSelection].uBottom = XN_MIN(g_MouseInput.StartSelection.Y, g_MouseInput.LastLocation.Y);
+		Selections[iActiveSelection].uTop = XN_MAX(g_MouseInput.StartSelection.Y, g_MouseInput.LastLocation.Y);
+		Selections[iActiveSelection].uLeft = XN_MIN(g_MouseInput.StartSelection.X, g_MouseInput.LastLocation.X);
+		Selections[iActiveSelection].uRight = XN_MAX(g_MouseInput.StartSelection.X, g_MouseInput.LastLocation.X);
 
-		g_MouseInput.pSelectionCallback(g_MouseInput.nSelectionState, selection);
+		g_MouseInput.pSelectionCallback(g_MouseInput.nSelectionState, Selections[0], Selections[1], iActiveSelection);
 	}
 }
 
@@ -86,7 +89,11 @@ void mouseInputButton(int button, int state, int x, int y)
 			if (x != g_MouseInput.StartSelection.X && y != g_MouseInput.StartSelection.Y)
 			{
 				g_MouseInput.nSelectionState = SELECTION_DONE;
+            
 				mouseInputCallSelection();
+                
+                iActiveSelection++;
+                iActiveSelection = iActiveSelection % 2;
 			}
 
 			g_MouseInput.nSelectionState = SELECTION_NONE;
