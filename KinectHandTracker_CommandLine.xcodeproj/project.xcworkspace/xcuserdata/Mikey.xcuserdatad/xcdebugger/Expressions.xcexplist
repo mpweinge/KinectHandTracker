@@ -3,10 +3,16 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "GaussianFilter(int (*) [48], float (*) [48], int):Draw.cpp">
+      </ContextState>
+      <ContextState
          contextName = "drawDepth(IntRect*, IntPair*):Draw.cpp">
          <PersistentStrings>
             <PersistentString
                value = "pFirstFrame">
+            </PersistentString>
+            <PersistentString
+               value = "pIntensityMap">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

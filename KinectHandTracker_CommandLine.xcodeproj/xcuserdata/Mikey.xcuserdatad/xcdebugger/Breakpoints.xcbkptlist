@@ -160,11 +160,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406189905.57179"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "182"
-         endingLineNumber = "182"
+         startingLineNumber = "185"
+         endingLineNumber = "185"
          landmarkName = "TextureMapInit(XnTextureMap* pTex, int nSizeX, int nSizeY, unsigned int nBytesPerPixel, int nCurX, int nCurY)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -173,11 +173,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406189905.57179"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "183"
-         endingLineNumber = "183"
+         startingLineNumber = "186"
+         endingLineNumber = "186"
          landmarkName = "TextureMapInit(XnTextureMap* pTex, int nSizeX, int nSizeY, unsigned int nBytesPerPixel, int nCurX, int nCurY)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -186,11 +186,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "898"
-         endingLineNumber = "898"
+         startingLineNumber = "1013"
+         endingLineNumber = "1013"
          landmarkName = "drawColorImage(IntRect* pLocation, IntPair* pPointer)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -494,11 +494,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406196847.142749"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1998"
-         endingLineNumber = "1998"
+         startingLineNumber = "2292"
+         endingLineNumber = "2292"
          landmarkName = "drawFrame()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -507,11 +507,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406196847.142749"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "2006"
-         endingLineNumber = "2006"
+         startingLineNumber = "2300"
+         endingLineNumber = "2300"
          landmarkName = "drawFrame()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -520,11 +520,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406196847.142749"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "2012"
-         endingLineNumber = "2012"
+         startingLineNumber = "2306"
+         endingLineNumber = "2306"
          landmarkName = "drawFrame()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -533,11 +533,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406196847.142749"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "2001"
-         endingLineNumber = "2001"
+         startingLineNumber = "2295"
+         endingLineNumber = "2295"
          landmarkName = "drawFrame()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -546,11 +546,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "522"
-         endingLineNumber = "522"
+         startingLineNumber = "637"
+         endingLineNumber = "637"
          landmarkName = "drawCursorMoved(IntPair location)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -585,11 +585,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "918"
-         endingLineNumber = "918"
+         startingLineNumber = "1033"
+         endingLineNumber = "1033"
          landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -598,22 +598,22 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406189905.57179"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "132"
-         endingLineNumber = "132">
+         startingLineNumber = "134"
+         endingLineNumber = "134">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1051"
-         endingLineNumber = "1051"
+         startingLineNumber = "1166"
+         endingLineNumber = "1166"
          landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -622,11 +622,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1050"
-         endingLineNumber = "1050"
+         startingLineNumber = "1165"
+         endingLineNumber = "1165"
          landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -635,11 +635,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1053"
-         endingLineNumber = "1053"
+         startingLineNumber = "1168"
+         endingLineNumber = "1168"
          landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -648,11 +648,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "923"
-         endingLineNumber = "923"
+         startingLineNumber = "1038"
+         endingLineNumber = "1038"
          landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -661,11 +661,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "595"
-         endingLineNumber = "595"
+         startingLineNumber = "710"
+         endingLineNumber = "710"
          landmarkName = "calculateHistogram()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -674,11 +674,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "608"
-         endingLineNumber = "608"
+         startingLineNumber = "723"
+         endingLineNumber = "723"
          landmarkName = "calculateHistogram()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -687,11 +687,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1044"
-         endingLineNumber = "1044"
+         startingLineNumber = "1159"
+         endingLineNumber = "1159"
          landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
          landmarkType = "7">
       </FileBreakpoint>
@@ -700,11 +700,271 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/Draw.cpp"
-         timestampString = "406183279.773067"
+         timestampString = "406195297.602546"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "942"
-         endingLineNumber = "942"
+         startingLineNumber = "1057"
+         endingLineNumber = "1057"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196847.142749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1431"
+         endingLineNumber = "1431"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406189423.039785"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "341"
+         endingLineNumber = "341"
+         landmarkName = "GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float &amp; pOutput[XDepthGrid][YDepthGrid], int kernelSize)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406189849.448749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "364"
+         endingLineNumber = "364"
+         landmarkName = "GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float pOutput[XDepthGrid][YDepthGrid], int kernelSize)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196847.142749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1466"
+         endingLineNumber = "1466"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196847.142749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1475"
+         endingLineNumber = "1475"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406190040.136902"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "374"
+         endingLineNumber = "374"
+         landmarkName = "GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float pOutput[XDepthGrid][YDepthGrid], int kernelSize)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196847.142749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1482"
+         endingLineNumber = "1482"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196847.142749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1535"
+         endingLineNumber = "1535"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196847.142749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1546"
+         endingLineNumber = "1546"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406192744.92604"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "404"
+         endingLineNumber = "404"
+         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; slope, float &amp; intercept)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196847.142749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1545"
+         endingLineNumber = "1545"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406194422.476421"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "417"
+         endingLineNumber = "417"
+         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; slope, float &amp; intercept)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406194422.476421"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "425"
+         endingLineNumber = "425"
+         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; slope, float &amp; intercept)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406194980.982524"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "426"
+         endingLineNumber = "426"
+         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; slope, float &amp; intercept)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196847.142749"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1550"
+         endingLineNumber = "1550"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196870.829244"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1574"
+         endingLineNumber = "1574"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196978.755282"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1594"
+         endingLineNumber = "1594"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406196982.451843"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1587"
+         endingLineNumber = "1587"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406197022.89893"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1599"
+         endingLineNumber = "1599"
+         landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "KinectHandTracker_CommandLine/Draw.cpp"
+         timestampString = "406197074.654249"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1578"
+         endingLineNumber = "1578"
          landmarkName = "drawDepth(IntRect* pLocation, IntPair* pPointer)"
          landmarkType = "7">
       </FileBreakpoint>

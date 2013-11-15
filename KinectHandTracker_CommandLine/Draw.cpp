@@ -30,6 +30,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 #if (XN_PLATFORM == XN_PLATFORM_MACOSX)
 	#include <GLUT/glut.h>
 	#include <OpenGL/gl.h>
@@ -66,6 +67,7 @@
 
 #define XDepthGrid 64
 #define YDepthGrid 48
+#define PI 3.141593
 
 // --------------------------------
 // Types
@@ -130,7 +132,8 @@ DrawUserInput g_DrawUserInput;
 int g_nMaxDepth = 0;
 bool bFirstFrame = true;
 int pFirstFrame [2] = {0};
-int pDepthMap [XDepthGrid][YDepthGrid] = { 0 };
+float pDepthMap [XDepthGrid][YDepthGrid] = { 0.0f };
+int pDepthDiffMap [XDepthGrid][YDepthGrid] = { 0 };
 std::vector<int> DepthOnSoap;
 std::vector<int> DepthOnTowel;
 
@@ -327,6 +330,118 @@ void TextureMapDraw(XnTextureMap* pTex, IntRect* pLocation)
 // --------------------------------
 // Code
 // --------------------------------
+
+void GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float pOutput[XDepthGrid][YDepthGrid], int kernelSize)
+{
+    //Construct our kernel
+    float mean = kernelSize / 2.0f;
+    float sigmaSQ = kernelSize / 2.0f; // This should work
+    float sigma = sqrt(sigmaSQ);
+    
+    float frontCoeff = 1 / (sigma * sqrt(2 * PI));
+    
+    std::vector< std::vector<double> > kernel;
+    
+    // Set up sizes. (kernelSize x kernelSize)
+    kernel.resize(kernelSize);
+    
+    for (int i = 0; i < kernelSize; ++i)
+        kernel[i].resize(kernelSize);
+    
+    for (int i = 0; i < kernelSize; i++)
+    {
+        for (int j = 0; j < kernelSize; j++)
+        {
+            float dist = pow((i - mean), 2) + pow((j - mean), 2);
+            
+            float gaussDist = frontCoeff * exp( - dist / (2 * sigmaSQ));
+            
+            kernel[i][j] = gaussDist;
+        }
+    }
+    
+    //Iterate through our map and apply this filter. Return the diff
+    for (int i = 0; i < XDepthGrid - kernelSize; i++)
+    {
+        for (int j = 0; j < YDepthGrid - kernelSize; j++)
+        {
+            //Ok multiply our kernel by the values and see what our energy output is
+            float energyOutput = 0.0f;
+            for (int kernX = 0; kernX < kernelSize; kernX++)
+            {
+                for (int kernY = 0; kernY < kernelSize; kernY++)
+                {
+                    energyOutput += kernel[kernX][kernY] * pDepthDiffMap[i + kernX][j + kernY];
+                }
+            }
+            pOutput[i + kernelSize / 2][j + kernelSize / 2] = energyOutput;
+        }
+    }
+}
+
+void CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float & xSlope, float & ySlope, float & xIntercept, float & yIntercept)
+{
+    //Input has a 1 where there is a point in the 2D grid
+    float xMean = 0;
+    float yMean = 0;
+    
+    int numPoints = 0;
+    
+    //Based off of http://en.wikipedia.org/wiki/Simple_linear_regression#Fitting_the_regression_line
+    for (int i = 0; i < XDepthGrid; i++)
+    {
+        for (int j = 0; j < YDepthGrid; j++)
+        {
+            if (pInput[i][j] == 1)
+            {
+                numPoints++;
+                xMean += i;
+                yMean += j;
+            }
+        }
+    }
+    
+    xMean /= numPoints;
+    yMean /= numPoints;
+    
+    float xSQSum = 0;
+    float multSum = 0;
+    float ySQSum = 0;
+    
+    for (int i = 0; i < XDepthGrid; i++)
+    {
+        for (int j = 0; j < YDepthGrid; j++)
+        {
+            if (pInput[i][j] == 1)
+            {
+                xSQSum += pow((i - xMean), 2);
+                ySQSum += pow((j - yMean), 2);
+                multSum += (i - xMean) * (j - yMean);
+            }
+        }
+    }
+    
+    xSlope = multSum / xSQSum;
+    ySlope = multSum / ySQSum;
+    
+    ySlope = 1 / ySlope;
+    
+    xIntercept = yMean - xSlope * xMean;
+    
+    yIntercept = yMean - ySlope * xMean;
+    
+    if (ySQSum > xSQSum)
+    {
+        xSlope = ySlope;
+        xIntercept = yIntercept;
+    }
+    else
+    {
+        ySlope = xSlope;
+        yIntercept = xIntercept;
+    }
+}
+
 void CreateRainbowPallet()
 {
 	unsigned char r, g, b;
@@ -1099,7 +1214,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     pFirstFrame[g_DrawUserInput.CurrentSelect] = averageDepth;
                     bFirstFrame = false;
                     
-                    /*int width = 640 / XDepthGrid;
+                    int width = 640 / XDepthGrid;
                     int height = 480 / YDepthGrid;
                     
                     for (int i = 0; i < XDepthGrid; i++)
@@ -1116,11 +1231,13 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                                     int newDepth = *(pDepthCopy + pDepthMD->XRes() * l + k);
                                     
                                     averageDepth += (float)newDepth;
-                                    pDepthMap[i][j] = averageDepth;
                                 }
                             }
+                            
+                            averageDepth /= numPointsReadIn;
+                            pDepthMap[i][j] = averageDepth;
                         }
-                    }*/
+                    }
                     
                 }
                 else
@@ -1272,7 +1389,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                 
                 if (!bFirstFrame)
                 {
-                    /*int numPointsReadIn = 0;
+                    int numPointsReadIn = 0;
                     float averageDepth = 0;
                     
                     DepthGenerator* pDepthGen = getDepthGenerator();
@@ -1282,6 +1399,11 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     
                     const XnDepthPixel* pDepthCopy = pDepthGen->GetDepthMap();
                     
+                    int minLeftWallDist = 64;
+                    int minRightWallDist = 64;
+                    int minTopWallDist = 64;
+                    int minBottomWallDist = 64;
+                    
                     int width = 640 / XDepthGrid;
                     int height = 480 / YDepthGrid;
                     
@@ -1289,6 +1411,8 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     {
                         for (int j=0 ; j < YDepthGrid; j++)
                         {
+                            pDepthDiffMap[i][j] = 0;
+                            
                             numPointsReadIn = 0;
                             averageDepth = 0;
                             for (int k = i * width; k < (i+1) * width; k++)
@@ -1299,16 +1423,186 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                                     int newDepth = *(pDepthCopy + pDepthMD->XRes() * l + k);
                                     
                                     averageDepth += (float)newDepth;
-                                    pDepthMap[i][j] = averageDepth;
                                 }
                             }
+                            averageDepth /= numPointsReadIn;
+                            if (abs(averageDepth - pDepthMap[i][j]) > 50)
+                            {
+                                glBegin(GL_LINE_LOOP);
+                                {
+                                    glVertex2i(i * width, j * height);
+                                    glVertex2i(i * width, (j+1) * height);
+                                    glVertex2i( (i+1) * width, (j+1) * height);
+                                    glVertex2i( (i+1) * width, j * height);
+                                    glVertex2i( i * width, j * height);
+                                }
+                                glEnd();
+                                
+                                pDepthDiffMap[i][j] = 1;
+                                
+                                /*char buf[512] = "";
+                                int nYLocation = (j+1) * height - 20;
+                                int nXLocation =  i * width + 10;
+                                sprintf(buf, "D: %3.0f", averageDepth);
+                                glColor3f(1,0,0);
+                                glRasterPos2i(nXLocation,nYLocation);
+                                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+                                
+                                nYLocation += 20;
+                                sprintf(buf, "A: %3.0f", pDepthMap[i][j]);
+                                glColor3f(1,0,0);
+                                glRasterPos2i(nXLocation,nYLocation);
+                                glPrintString(GLUT_BITMAP_HELVETICA_12, buf);*/
+                            }
                         }
-                    }*/
+                    }
+                    
+                    //Now we have this pDepthDiffMap holding all the indices where
+                    //There was a difference in Depth. We want to filter this to identify the hand center
+                    //Use a window filter with a variable sized kernel
+                    
+                    int kernelSize = 10;
+                    float pIntensityMap[XDepthGrid][YDepthGrid] = {0};
+                    GaussianFilter(pDepthDiffMap, pIntensityMap, kernelSize);
+                    
+                    float pHighIntensityPts[XDepthGrid][YDepthGrid] = { 0 };
+                    
+                    int xMax = 0, xMin = 64;
+                    int yMax = 0, yMin = 64;
+                    
+                    //We need to find out what side of the rectangular grid we are coming from. Calculate min distance from each wall and proceed that way.
+                    
+                    for (int i = 0; i < XDepthGrid; i++)
+                    {
+                        for (int j = 0; j < YDepthGrid; j++)
+                        {
+                            glEnable(GL_BLEND);
+                            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                            
+                            glBegin(GL_QUADS);
+                                glColor4f(0, pIntensityMap[i][j] / 5, pIntensityMap[i][j] / 5, pIntensityMap[i][j] / 5);
+                                glVertex2i( i * width , j * height);
+                                glVertex2i( i * width , (j+1) * height);
+                                glVertex2i( (i+1) * width , (j+1) * height);
+                                glVertex2i( (i+1) * width , j * height);
+                            glEnd();
+                            
+                            glDisable(GL_BLEND);
+                            
+                            if ((pIntensityMap[i][j] / 5) > 0.5)
+                            {
+                                pHighIntensityPts[i][j] = 1;
+                                if (i > xMax)
+                                {
+                                    xMax = i;
+                                }
+                                if (i < xMin)
+                                {
+                                    xMin = i;
+                                }
+                                
+                                if (j > yMax)
+                                {
+                                    yMax = j;
+                                }
+                                if (j < yMin)
+                                {
+                                    yMin = j;
+                                }
+                                
+                                if (i < minLeftWallDist)
+                                    minLeftWallDist = i;
+                                if ( (64 - i) < minRightWallDist )
+                                    minRightWallDist = (64 -i);
+                                if (j < minTopWallDist)
+                                    minTopWallDist = j;
+                                if ((48 - j) < minBottomWallDist)
+                                    minBottomWallDist = (48 - j);
+                            }
+                            
+                        }
+                    }
+                    
+                    /*glLineWidth(2.0f);
+                    glBegin(GL_LINE_LOOP);
+                    glColor3f(0.5f, 0.35f, 0.05f);
+                    for (int i = 0; i < XDepthGrid; i++)
+                    {
+                        for (int j = 0; j < YDepthGrid; j++)
+                        {
+                            if (pHighIntensityPts[i][j] == 1)
+                            {
+                                glVertex2f( (i+0.5) * width, (j + 0.5) * height);
+                            }
+                        }
+                    }
+                    glEnd();
+                    glLineWidth(1.0f);*/
+                    
+                    //Calculate linear regression from data points
+                    float xSlope, ySlope;
+                    float xIntercept, yIntercept;
+                    CalculateLinearRegression(pHighIntensityPts, xSlope, ySlope, xIntercept, yIntercept);
+                    
+                    glBegin(GL_LINE_LOOP);
+                    glColor3f(0.0f, 1.0f, 0.0f);
+                    
+                    //We know which wall we are coming from
+                    
+                    for (int i = 0; i < XDepthGrid; i++)
+                    {
+                        for (int j = 0; j < YDepthGrid; j++)
+                        {
+                            if (pHighIntensityPts[i][j] == 1)
+                            {
+                                float yCoord = i * ySlope + yIntercept;
+                                if ((yCoord < yMax) && (yCoord > yMin))
+                                    glVertex2f( (i+0.5) * width, (yCoord + 0.5) * height);
+                                
+                                float xCoord = (j - yIntercept) / ySlope;
+                                if ((xCoord < xMax) && (xCoord > xMin))
+                                    glVertex2f( (xCoord+0.5) * width, (j + 0.5) * height);
+                            }
+                        }
+                    }
+                    glLineWidth(1.0f);
+                    glEnd();
+                    
+                    glPointSize(10);
+                    glBegin(GL_POINTS);
+                    glColor3f(1,0,0);
+                    
+                    if ((minLeftWallDist < minBottomWallDist) && ( minLeftWallDist < minTopWallDist)
+                        && (minLeftWallDist < minRightWallDist))
+                    {
+                        int xCoord = xMax - 7;
+                        float yCoord = xMax * ySlope + yIntercept;
+                        glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+                    }
+                    else if ((minRightWallDist < minBottomWallDist) && (minRightWallDist < minTopWallDist)
+                        && (minRightWallDist < minLeftWallDist))
+                    {
+                        int xCoord = xMin + 7;
+                        float yCoord = xMax * ySlope + yIntercept;
+                        glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+                    }
+                    else if ((minBottomWallDist < minRightWallDist) && (minBottomWallDist < minTopWallDist)
+                        && (minBottomWallDist < minLeftWallDist))
+                    {
+                        int yCoord = yMin + 7;
+                        float xCoord = (yCoord - yIntercept) / ySlope;
+                        glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+                    }
+                    else
+                    {
+                        int yCoord = yMax - 7;
+                        float xCoord = (yCoord - yIntercept) / ySlope;
+                        glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+                    }
+                    glEnd();
+                    glPointSize(1);
                 }
-                
-                
             }
-    
         }
 	}
 }
