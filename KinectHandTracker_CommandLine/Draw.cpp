@@ -1426,9 +1426,9 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                                 }
                             }
                             averageDepth /= numPointsReadIn;
-                            if (abs(averageDepth - pDepthMap[i][j]) > 50)
+                            if ((abs(averageDepth - pDepthMap[i][j]) > 50) && (averageDepth < 1000))
                             {
-                                glBegin(GL_LINE_LOOP);
+								glBegin(GL_LINE_LOOP);
                                 {
                                     glVertex2i(i * width, j * height);
                                     glVertex2i(i * width, (j+1) * height);
@@ -1461,14 +1461,12 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     //There was a difference in Depth. We want to filter this to identify the hand center
                     //Use a window filter with a variable sized kernel
                     
-                    int kernelSize = 10;
+                    int kernelSize = 8;
                     float pIntensityMap[XDepthGrid][YDepthGrid] = {0};
                     GaussianFilter(pDepthDiffMap, pIntensityMap, kernelSize);
                     
-                    float pHighIntensityPts[XDepthGrid][YDepthGrid] = { 0 };
-                    
-                    int xMax = 0, xMin = 64;
-                    int yMax = 0, yMin = 64;
+					float pHighIntensityPts[XDepthGrid][YDepthGrid] = { 0 };
+					std::vector< IntPair > highIntensityVector;
                     
                     //We need to find out what side of the rectangular grid we are coming from. Calculate min distance from each wall and proceed that way.
                     
@@ -1492,63 +1490,226 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                             if ((pIntensityMap[i][j] / 5) > 0.5)
                             {
                                 pHighIntensityPts[i][j] = 1;
-                                if (i > xMax)
-                                {
-                                    xMax = i;
-                                }
-                                if (i < xMin)
-                                {
-                                    xMin = i;
-                                }
-                                
-                                if (j > yMax)
-                                {
-                                    yMax = j;
-                                }
-                                if (j < yMin)
-                                {
-                                    yMin = j;
-                                }
-                                
-                                if (i < minLeftWallDist)
-                                    minLeftWallDist = i;
-                                if ( (64 - i) < minRightWallDist )
-                                    minRightWallDist = (64 -i);
-                                if (j < minTopWallDist)
-                                    minTopWallDist = j;
-                                if ((48 - j) < minBottomWallDist)
-                                    minBottomWallDist = (48 - j);
-                            }
-                            
-                        }
-                    }
-                    
-                    /*glLineWidth(2.0f);
-                    glBegin(GL_LINE_LOOP);
-                    glColor3f(0.5f, 0.35f, 0.05f);
-                    for (int i = 0; i < XDepthGrid; i++)
-                    {
-                        for (int j = 0; j < YDepthGrid; j++)
-                        {
-                            if (pHighIntensityPts[i][j] == 1)
-                            {
-                                glVertex2f( (i+0.5) * width, (j + 0.5) * height);
+								IntPair currPoint;
+								currPoint.X = i;
+								currPoint.Y = j;
+								highIntensityVector.push_back(currPoint);
                             }
                         }
                     }
-                    glEnd();
-                    glLineWidth(1.0f);*/
+					
+					//We want to perform a round of k-means clustering
+					//We want a starting estimate of the center of the two. To do this, pick the two points that 
+					//Are furthest away and set as center
+					double maxDist = 0;
+					int maxIndex1 = 0;
+					int maxIndex2 = 0;
+					for (int i = 0; i < highIntensityVector.size(); i++)
+					{
+						for (int j = i+1; j < highIntensityVector.size(); j++)
+						{
+							double dist = pow((highIntensityVector[i].X -highIntensityVector[j].X), 2)
+							+ pow((highIntensityVector[i].Y -highIntensityVector[j].Y), 2);
+							if (dist > maxDist)
+							{
+								maxDist = dist;
+								maxIndex1 = i;
+								maxIndex2 = j;
+							}
+						}
+					}
                     
                     //Calculate linear regression from data points
                     float xSlope, ySlope;
                     float xIntercept, yIntercept;
                     CalculateLinearRegression(pHighIntensityPts, xSlope, ySlope, xIntercept, yIntercept);
                     
-                    glBegin(GL_LINE_LOOP);
-                    glColor3f(0.0f, 1.0f, 0.0f);
+                    glPointSize(10);
+					glBegin(GL_POINTS);
+					glColor3f(1, 0, 1);
+					
+					//These are our clusters
+					if (highIntensityVector.size() > 0)
+					{
+						glVertex2f(highIntensityVector[maxIndex1].X * width, highIntensityVector[maxIndex1].Y * height);
+						glVertex2f(highIntensityVector[maxIndex2].X * width, highIntensityVector[maxIndex2].Y * height);
+					}
+                    glEnd();
+                    glPointSize(1);
+					
+					//Run through an iteration of k-means clustering
+					int * colourAffiliations = new int[highIntensityVector.size()];
+					for (int i = 0; i < highIntensityVector.size(); i++)
+					{
+						double dist1 = pow((highIntensityVector[i].X -highIntensityVector[maxIndex1].X), 2)
+						+ pow((highIntensityVector[i].Y -highIntensityVector[maxIndex1].Y), 2);
+
+						double dist2 = pow((highIntensityVector[i].X -highIntensityVector[maxIndex2].X), 2)
+						+ pow((highIntensityVector[i].Y -highIntensityVector[maxIndex2].Y), 2);
+						
+						if (dist1 > dist2)
+						{
+							colourAffiliations[i] = 0;
+						}
+						else {
+							colourAffiliations[i] = 1;
+						}
+					}
+					
+					//Recalculate our centers
+					double xTotal[2];
+					double yTotal[2];
+					int numPoints[2];
+					xTotal[0] = xTotal[1] = yTotal[0] = yTotal[1] = numPoints[0] = numPoints[1]= 0;
+
+					for (int i = 0; i < highIntensityVector.size(); i++)
+					{
+						if (colourAffiliations[i] == 0)
+						{
+							xTotal[0] += highIntensityVector[i].X;
+							yTotal[0] += highIntensityVector[i].Y;
+							numPoints[0]++;
+						}
+						else {
+							xTotal[1] += highIntensityVector[i].X;
+							yTotal[1] += highIntensityVector[i].Y;
+							numPoints[1]++;
+						}
+
+					}
+					
+
+					
+					double xCentroid[2];
+					double yCentroid[2];
+					xCentroid[0] = xTotal[0] / numPoints[0];
+					xCentroid[1] = xTotal[1] / numPoints[1];
+					yCentroid[0] = yTotal[0] / numPoints[0];
+					yCentroid[1] = yTotal[1] / numPoints[1];
+					
+					glPointSize(10);
+					glBegin(GL_POINTS);
+					glColor3f(1, 0.5, 1);
+					
+					//These are our clusters
+					if (highIntensityVector.size() > 0)
+					{
+						glVertex2f(xCentroid[0] * width, yCentroid[0] * height);
+						glVertex2f(xCentroid[1] * width, yCentroid[1] * height);
+					}
+                    glEnd();
+                    glPointSize(1);
+					
+					for (int i = 0; i < highIntensityVector.size(); i++)
+					{
+						double dist1 = pow((highIntensityVector[i].X -xCentroid[0]), 2)
+						+ pow((highIntensityVector[i].Y - yCentroid[0]), 2);
+						
+						double dist2 = pow((highIntensityVector[i].X -xCentroid[1]), 2)
+						+ pow((highIntensityVector[i].Y - yCentroid[1]), 2);
+						
+						if (dist1 > dist2)
+						{
+							colourAffiliations[i] = 0;
+						}
+						else {
+							colourAffiliations[i] = 1;
+						}
+					}
+					
+					glPointSize(10);
+					glBegin(GL_POINTS);
+					glColor3f(1, 1, 0);
+					for (int i = 0; i < highIntensityVector.size(); i++)
+					{
+						if (colourAffiliations[i] == 0)
+						{
+							glVertex2f(highIntensityVector[i].X * width, highIntensityVector[i].Y * height);
+						}
+					}
+					glEnd(); 
                     
                     //We know which wall we are coming from
+					//IntPair xMax1 = 0, xMin1 = 64;
+					IntPair xMax1, xMin1; 
+					xMax1.X = 0;
+					xMin1.X = XDepthGrid;
+                    //IntPair yMax1 = 0, yMin1 = 64;
+					IntPair yMax1, yMin1;
+					yMax1.Y = 0;
+					yMin1.Y = YDepthGrid;
+					
+					//IntPair xMax2 = 0, xMin2 = 64;
+					IntPair xMax2, xMin2; 
+					xMax2.X = 0;
+					xMin2.X = XDepthGrid;
+                    //IntPair yMax2 = 0, yMin2 = 64;
+					IntPair yMax2, yMin2;
+					yMax2.Y = 0;
+					yMin2.Y = YDepthGrid;
+					
+					for (int i = 0; i < highIntensityVector.size(); i++)
+					{
+						if  (colourAffiliations[i] == 0)
+						{
+							if (highIntensityVector[i].X > xMax1.X)
+							{
+								xMax1 = highIntensityVector[i];
+							}
+							if (highIntensityVector[i].X < xMin1.X)
+							{
+								xMin1 = highIntensityVector[i];
+							}
+							
+							if (highIntensityVector[i].Y > yMax1.Y)
+							{
+								yMax1 = highIntensityVector[i];
+							}
+							if (highIntensityVector[i].Y < yMin1.Y)
+							{
+								yMin1 = highIntensityVector[i];
+							}
+						}
+						else 
+						{
+							if (highIntensityVector[i].X > xMax2.X)
+							{
+								xMax2 = highIntensityVector[i];
+							}
+							if (highIntensityVector[i].X < xMin2.X)
+							{
+								xMin2 = highIntensityVector[i];
+							}
+							
+							if (highIntensityVector[i].Y > yMax2.Y)
+							{
+								yMax2 = highIntensityVector[i];
+							}
+							if (highIntensityVector[i].Y < yMin2.Y)
+							{
+								yMin2 = highIntensityVector[i];
+							}
+						}
+						
+						//TODO: Change to accumulated distances instead for better noise detection!
+						if (highIntensityVector[i].X < minLeftWallDist)
+							minLeftWallDist = highIntensityVector[i].X;
+						
+						if ( (XDepthGrid - highIntensityVector[i].X) < minRightWallDist )
+							minRightWallDist = (XDepthGrid -highIntensityVector[i].X);
+						
+						if (highIntensityVector[i].Y < minTopWallDist)
+							minTopWallDist = highIntensityVector[i].Y;
+						
+						if ((YDepthGrid - highIntensityVector[i].Y) < minBottomWallDist)
+							minBottomWallDist = (YDepthGrid - highIntensityVector[i].Y);
+						
+					}
                     
+					/*glBegin(GL_LINE_LOOP);
+                    glLineWidth(2.0f);
+                    glColor3f(0.5f, 0.35f, 0.05f);
+					//Draw line of regression slope
                     for (int i = 0; i < XDepthGrid; i++)
                     {
                         for (int j = 0; j < YDepthGrid; j++)
@@ -1566,41 +1727,125 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                         }
                     }
                     glLineWidth(1.0f);
-                    glEnd();
+                    glEnd();*/
+					
+					IntPair handTip1;
+					IntPair handTip2;
+					
+					bool bHandTipOverSoap = false;
                     
                     glPointSize(10);
                     glBegin(GL_POINTS);
-                    glColor3f(1,0,0);
+                    glColor3f(0,0,0);
                     
-                    if ((minLeftWallDist < minBottomWallDist) && ( minLeftWallDist < minTopWallDist)
+                    if ((minTopWallDist <= minRightWallDist)
+						&& (minTopWallDist <= minLeftWallDist))
+					{
+						//int yCoord = yMax ;
+                        //float xCoord = (yCoord - yIntercept) / ySlope;
+                        //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+						handTip1 = yMax1;
+						handTip2 = yMax2;
+						glVertex2f( (yMax1.X + 0.5f) * width, (yMax1.Y + 0.5) * height);
+						glVertex2f( (yMax2.X + 0.5f) * width, (yMax2.Y + 0.5) * height);
+						
+						int bottomSoap = g_DrawUserInput.SoapRect.uBottom;
+						int topSoap = g_DrawUserInput.SoapRect.uTop;
+						int leftSoap = g_DrawUserInput.SoapRect.uLeft;
+						int rightSoap = g_DrawUserInput.SoapRect.uRight;
+						
+						for (int i = 0; i < highIntensityVector.size(); i++)
+						{
+							if (colourAffiliations[i] == 0)
+							{
+								if (highIntensityVector[i].Y == yMax1.Y)
+								{
+									glVertex2f( (highIntensityVector[i].X + 0.5f) * width, (highIntensityVector[i].Y + 0.5) * height);
+									
+									int scaledY = highIntensityVector[i].Y * 480 / YDepthGrid;
+									int scaledX = highIntensityVector[i].X * 640 / XDepthGrid;
+									if ( ( scaledY < topSoap) && (scaledY > bottomSoap) 
+										&& (scaledX > leftSoap) && (scaledX < rightSoap) )
+									{
+										bHandTipOverSoap = true;
+									}
+								}
+							}
+							else {
+								if (highIntensityVector[i].Y == yMax2.Y)
+								{
+									glVertex2f( (highIntensityVector[i].X + 0.5f) * width, (highIntensityVector[i].Y + 0.5) * height);
+									
+									int scaledY = highIntensityVector[i].Y * WIN_SIZE_Y / YDepthGrid;
+									int scaledX = highIntensityVector[i].X * WIN_SIZE_X / XDepthGrid;
+									if ( ( scaledY < topSoap) && (scaledY > bottomSoap) 
+										&& (scaledX > leftSoap) && (scaledX < rightSoap) )
+									{
+										bHandTipOverSoap = true;
+									}
+								}
+							}
+
+						}
+					}
+					else if ((minBottomWallDist < minRightWallDist) && (minBottomWallDist < minTopWallDist)
+							 && (minBottomWallDist < minLeftWallDist))
+                    {
+                        //int yCoord = yMin ;
+                        //float xCoord = (yCoord - yIntercept) / ySlope;
+                        //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+						handTip1 = yMin1;
+						handTip2 = yMin2;
+						glVertex2f( (yMin1.X + 0.5f) * width, (yMin1.Y + 0.5) * height);
+						glVertex2f( (yMin2.X + 0.5f) * width, (yMin2.Y + 0.5) * height);
+                    }
+					else if ((minLeftWallDist < minBottomWallDist) && ( minLeftWallDist < minTopWallDist)
                         && (minLeftWallDist < minRightWallDist))
                     {
-                        int xCoord = xMax - 7;
-                        float yCoord = xMax * ySlope + yIntercept;
-                        glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+                        //int xCoord = xMax;
+                        //float yCoord = xMax * ySlope + yIntercept;
+                        //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+						
+						handTip1 = xMax1;
+						handTip2 = xMax2;
+						
+						glVertex2f( (xMax1.X + 0.5f) * width, (xMax1.Y + 0.5) * height);
+						glVertex2f( (xMax2.X + 0.5f) * width, (xMax2.Y + 0.5) * height);
                     }
                     else if ((minRightWallDist < minBottomWallDist) && (minRightWallDist < minTopWallDist)
-                        && (minRightWallDist < minLeftWallDist))
+							 && (minRightWallDist < minLeftWallDist))
                     {
-                        int xCoord = xMin + 7;
-                        float yCoord = xMax * ySlope + yIntercept;
-                        glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
-                    }
-                    else if ((minBottomWallDist < minRightWallDist) && (minBottomWallDist < minTopWallDist)
-                        && (minBottomWallDist < minLeftWallDist))
-                    {
-                        int yCoord = yMin + 7;
-                        float xCoord = (yCoord - yIntercept) / ySlope;
-                        glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+                        //int xCoord = xMin ;
+                        //float yCoord = xMax * ySlope + yIntercept;
+                        //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+						
+						handTip1 = xMin1;
+						handTip2 = xMin2;
+						glVertex2f( (xMin1.X + 0.5f) * width, (xMin1.Y + 0.5) * height);
+						glVertex2f( (xMin2.X + 0.5f) * width, (xMin2.Y + 0.5) * height);
                     }
                     else
                     {
-                        int yCoord = yMax - 7;
-                        float xCoord = (yCoord - yIntercept) / ySlope;
-                        glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+                        //int yCoord = yMax ;
+                        //float xCoord = (yCoord - yIntercept) / ySlope;
+                        //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
+						handTip1 = yMax1;
+						handTip2 = yMax2;
+						glVertex2f( (yMax1.X + 0.5f) * width, (yMax1.Y + 0.5) * height);
+						glVertex2f( (yMax2.X + 0.5f) * width, (yMax2.Y + 0.5) * height);
                     }
-                    glEnd();
-                    glPointSize(1);
+					glEnd();
+					
+					//Hand overtop of soap
+					if (bHandTipOverSoap)
+					{
+						nXLocation =  WIN_SIZE_X - 350;
+						sprintf(buf, "Hand Tip Over Soap");
+                        nYLocation = WIN_SIZE_Y - 140;
+                        glColor3f(1,0,0);
+                        glRasterPos2i(nXLocation,nYLocation);
+                        glPrintString(GLUT_BITMAP_HELVETICA_12, buf);
+					}
                 }
             }
         }
