@@ -331,6 +331,8 @@ void TextureMapDraw(XnTextureMap* pTex, IntRect* pLocation)
 // Code
 // --------------------------------
 
+//Iterate through area of interest and apply a gaussian kernel at each point to figure out the strength of
+//The points around it. Using this to filter out noise
 void GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float pOutput[XDepthGrid][YDepthGrid], int kernelSize)
 {
     //Construct our kernel
@@ -348,24 +350,26 @@ void GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float pOutput[XDe
     for (int i = 0; i < kernelSize; ++i)
         kernel[i].resize(kernelSize);
     
+    //Generate our 2D gaussian kernel
     for (int i = 0; i < kernelSize; i++)
     {
         for (int j = 0; j < kernelSize; j++)
         {
             float dist = pow((i - mean), 2) + pow((j - mean), 2);
             
+            //Calculate the strength at each point (from the center of the kernel)
             float gaussDist = frontCoeff * exp( - dist / (2 * sigmaSQ));
             
             kernel[i][j] = gaussDist;
         }
     }
     
-    //Iterate through our map and apply this filter. Return the diff
+    //Iterate through our map and apply this kernel. Return the sum of strengths at each point
     for (int i = 0; i < XDepthGrid - kernelSize; i++)
     {
         for (int j = 0; j < YDepthGrid - kernelSize; j++)
         {
-            //Ok multiply our kernel by the values and see what our energy output is
+            //Ok multiply our kernel by the value at each point and sum to calculate energy output
             float energyOutput = 0.0f;
             for (int kernX = 0; kernX < kernelSize; kernX++)
             {
@@ -379,6 +383,7 @@ void GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float pOutput[XDe
     }
 }
 
+//Calculate a linear regression based off a series of input points
 void CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float & xSlope, float & ySlope, float & xIntercept, float & yIntercept)
 {
     //Input has a 1 where there is a point in the 2D grid
@@ -1014,6 +1019,9 @@ void drawColorImage(IntRect* pLocation, IntPair* pPointer)
 	TextureMapDraw(&g_texImage, pLocation);
 }
 
+
+//Most of the drawing, filter code is in here
+//This is called whenever a depth frame is processed
 void drawDepth(IntRect* pLocation, IntPair* pPointer)
 {
 	if (g_DrawConfig.Streams.Depth.Coloring != DEPTH_OFF)
@@ -1158,7 +1166,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 		TextureMapUpdate(&g_texDepth);
 		TextureMapDraw(&g_texDepth, pLocation);
         
-        glBegin(GL_LINES);
+        /*glBegin(GL_LINES);
         glLineWidth(3.0);
         glColor3f( 1.0, 1.0, 1.0);
         for (int i = 0; i < diffDepthPoints.size(); i++)
@@ -1167,18 +1175,17 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
             int yCoord = diffDepthPoints[i] % pDepthMD->YRes();
             glVertex2f( xCoord, yCoord );
         }
-        glEnd();
+        glEnd();*/
         //If we don't have an initial depth reading, copy it in
          //else
         //
          {
-            //They have selected a
+            //They have selected a region of interest
             if (g_DrawUserInput.State == SELECTION_DONE)
             {
                 if (bFirstFrame)
                 {
                     //Take a depth snapshot
-                    //Draw depth errywhere
                     //see if our depth has changed?
                     float averageDepth = 0;
                     int numPointsReadIn = 0;
@@ -1190,15 +1197,17 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     
                     const XnDepthPixel* pDepthCopy = pDepthGen->GetDepthMap();
                     
-                    //Do a snapshot of what we just read in (soap or towel)
+                    //Do a depth snapshot of what we just read in (soap or towel)
                     numPointsReadIn = 0;
                     averageDepth = 0;
                     IntRect currRect;
+                    //What rectangle are we working with right now
                     if (g_DrawUserInput.CurrentSelect == SOAP)
                         currRect = g_DrawUserInput.SoapRect;
                     else
                         currRect = g_DrawUserInput.TowelRect;
                     
+                    //iterate over the selected rectangle and store the average depth over the rectangle
                     for (int i = currRect.uLeft; i< currRect.uRight; i++)
                     {
                         for (int j = currRect.uBottom; j < currRect.uTop; j++)
@@ -1214,6 +1223,10 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     pFirstFrame[g_DrawUserInput.CurrentSelect] = averageDepth;
                     bFirstFrame = false;
                     
+                    //XDepthGrid stores the number of x points we are collecting for depth (breaking down
+                    //the depth image into a xdepthgrid x ydepthgrid granulated region for efficiency)
+                    
+                    //640x480 is hard coded resolution of the depth image coming from the kinect
                     int width = 640 / XDepthGrid;
                     int height = 480 / YDepthGrid;
                     
@@ -1223,6 +1236,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                         {
                             numPointsReadIn = 0;
                             averageDepth = 0;
+                            //Store average depth across xdepthgrid x ydepthgrid
                             for (int k = i * width; k < (i+1) * width; k++)
                             {
                                 for (int l = j * height; l < (j+1) * height; l++)
@@ -1240,7 +1254,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     }
                     
                 }
-                else
+                else //not the first frame (where we collect a snapshot)
                 {
                     //see if our depth has changed?
                     float averageDepth = 0;
@@ -1266,7 +1280,8 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                             currRect = g_DrawUserInput.SoapRect;
                         else
                             currRect = g_DrawUserInput.TowelRect;
-                            
+                        
+                        //Collect the average depth across the rectangle
                         for (int i = currRect.uLeft; i< currRect.uRight; i++)
                         {
                             for (int j = currRect.uBottom; j < currRect.uTop; j++)
@@ -1281,6 +1296,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                         
                         int diff = averageDepth - pFirstFrame[select];
                         
+                        //Has the depth changed?
                         if (select == 0)
                         {
                             DepthOnSoap.push_back(diff);
@@ -1297,7 +1313,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                         }
                     }
                 }
-                //Put "hand above soap" message at thing
+                //Put "hand above soap" message 
                 /*char buf[512] = "";
                 if (bSelectedRegionDepthChange)
                 {
@@ -1313,6 +1329,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                 glRasterPos2i(nXLocation,nYLocation);
                 glPrintString(GLUT_BITMAP_HELVETICA_12, buf);*/
                 
+                //Plot the soap depth over time as a line graph (to show whether the soap rectangle is changing)
                 char buf[512] = "";
                 int nYLocation = WIN_SIZE_Y - 60;
                 int nXLocation =  10;
@@ -1331,6 +1348,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                 glEnd();
                 if (DepthOnSoap.size() > 0)
                 {
+                    //The depth change is significant? Assume hand is over soap
                     if (DepthOnSoap[DepthOnSoap.size() - 1] < -5)
                     {
                         //Hand overtop of soap
@@ -1387,6 +1405,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     }
                 }
                 
+                //Not the first frame
                 if (!bFirstFrame)
                 {
                     int numPointsReadIn = 0;
@@ -1426,6 +1445,8 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                                 }
                             }
                             averageDepth /= numPointsReadIn;
+                            //1000 is noise (too far for kinect to reliably pick up, so don't draw it)
+                            //See if the depth has changed? If so, likely a body part (ie. arm)
                             if ((abs(averageDepth - pDepthMap[i][j]) > 50) && (averageDepth < 1000))
                             {
 								glBegin(GL_LINE_LOOP);
@@ -1477,6 +1498,8 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                             glEnable(GL_BLEND);
                             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                             
+                            //Draw in shades of blue the depth values that have changed, and
+                            //change the alpha value depending on the value of the difference
                             glBegin(GL_QUADS);
                                 glColor4f(0, pIntensityMap[i][j] / 5, pIntensityMap[i][j] / 5, pIntensityMap[i][j] / 5);
                                 glVertex2i( i * width , j * height);
@@ -1498,7 +1521,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                         }
                     }
 					
-					//We want to perform a round of k-means clustering
+					//We want to perform a round of k-means clustering to identify arms
 					//We want a starting estimate of the center of the two. To do this, pick the two points that 
 					//Are furthest away and set as center
 					double maxDist = 0;
@@ -1578,8 +1601,6 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 
 					}
 					
-
-					
 					double xCentroid[2];
 					double yCentroid[2];
 					xCentroid[0] = xTotal[0] / numPoints[0];
@@ -1600,6 +1621,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     glEnd();
                     glPointSize(1);
 					
+                    //Classify based off euclidian distance
 					for (int i = 0; i < highIntensityVector.size(); i++)
 					{
 						double dist1 = pow((highIntensityVector[i].X -xCentroid[0]), 2)
@@ -1629,7 +1651,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 					}
 					glEnd(); 
                     
-                    //We know which wall we are coming from
+                    //We know which wall we are coming from, ie. where the hand is reaching from, find the min distance from each boundary
 					//IntPair xMax1 = 0, xMin1 = 64;
 					IntPair xMax1, xMin1; 
 					xMax1.X = 0;
@@ -1738,6 +1760,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     glBegin(GL_POINTS);
                     glColor3f(0,0,0);
                     
+                    //Are we reaching from the top of the grid
                     if ((minTopWallDist <= minRightWallDist)
 						&& (minTopWallDist <= minLeftWallDist))
 					{
@@ -1754,12 +1777,14 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 						int leftSoap = g_DrawUserInput.SoapRect.uLeft;
 						int rightSoap = g_DrawUserInput.SoapRect.uRight;
 						
+                        //Draw a square at the furthest point from the top of the grid (for each cluster aka each hand)
 						for (int i = 0; i < highIntensityVector.size(); i++)
 						{
 							if (colourAffiliations[i] == 0)
 							{
 								if (highIntensityVector[i].Y == yMax1.Y)
 								{
+                                    //Plot the point for each cluster at the extremity
 									glVertex2f( (highIntensityVector[i].X + 0.5f) * width, (highIntensityVector[i].Y + 0.5) * height);
 									
 									int scaledY = highIntensityVector[i].Y * 480 / YDepthGrid;
@@ -1791,6 +1816,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 					else if ((minBottomWallDist < minRightWallDist) && (minBottomWallDist < minTopWallDist)
 							 && (minBottomWallDist < minLeftWallDist))
                     {
+                        //TODO: Mirror the work from the top wall for each wall
                         //int yCoord = yMin ;
                         //float xCoord = (yCoord - yIntercept) / ySlope;
                         //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
@@ -1802,6 +1828,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
 					else if ((minLeftWallDist < minBottomWallDist) && ( minLeftWallDist < minTopWallDist)
                         && (minLeftWallDist < minRightWallDist))
                     {
+                        //TODO: Mirror the work from the top wall for each wall
                         //int xCoord = xMax;
                         //float yCoord = xMax * ySlope + yIntercept;
                         //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
@@ -1815,6 +1842,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     else if ((minRightWallDist < minBottomWallDist) && (minRightWallDist < minTopWallDist)
 							 && (minRightWallDist < minLeftWallDist))
                     {
+                        //TODO: Mirror the work from the top wall for each wall
                         //int xCoord = xMin ;
                         //float yCoord = xMax * ySlope + yIntercept;
                         //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);
@@ -1826,6 +1854,7 @@ void drawDepth(IntRect* pLocation, IntPair* pPointer)
                     }
                     else
                     {
+                        //TODO: Mirror the work from the top wall for each wall
                         //int yCoord = yMax ;
                         //float xCoord = (yCoord - yIntercept) / ySlope;
                         //glVertex2f( (xCoord + 0.5f) * width, (yCoord + 0.5) * height);

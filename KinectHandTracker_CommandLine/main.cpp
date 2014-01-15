@@ -651,77 +651,6 @@ void XN_CALLBACK_TYPE UserCalibration_CalibrationStart(xn::SkeletonCapability& /
     printf("%d Calibration started for user %d\n", epochTime, nId);
 }
 
-void XN_CALLBACK_TYPE Hand_Create(	xn::HandsGenerator& /*generator*/,
-                                               XnUserID			nId,
-                                               const XnPoint3D*	pPosition,
-                                               XnFloat				/*fTime*/,
-                                               void*				pCookie)
-{
-	printf("New Hand: %d @ (%f,%f,%f)\n", nId, pPosition->X, pPosition->Y, pPosition->Z);
-    numTrackingHands++;
-	/*HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
-	if(sm_Instances.Find(pThis) == sm_Instances.End())
-	{
-		printf("Dead HandTracker: skipped!\n");
-		return;
-	}
-    
-	pThis->m_History[nId].Push(*pPosition);*/
-}
-
-void XN_CALLBACK_TYPE Hand_Update(	xn::HandsGenerator& /*generator*/,
-                                               XnUserID			nId,
-                                               const XnPoint3D*	pPosition,
-                                               XnFloat				/*fTime*/,
-                                               void*				pCookie)
-{
-	//HandTracker*	pThis = static_cast<HandTracker*>(pCookie);
-	/*if(sm_Instances.Find(pThis) == sm_Instances.End())
-	{
-		printf("Dead HandTracker: skipped!\n");
-		return;
-	}
-    
-	// Add to this user's hands history
-	TrailHistory::Iterator it = pThis->m_History.Find(nId);
-	if (it == pThis->m_History.End())
-	{
-		printf("Dead hand update: skipped!\n");
-		return;
-	}
-    
-	it->Value().Push(*pPosition);*/
-    printf("New Position: %d @ (%f,%f,%f)\n", nId, pPosition->X, pPosition->Y, pPosition->Z);
-}
-
-void XN_CALLBACK_TYPE Hand_Destroy(	xn::HandsGenerator& /*generator*/,
-                                                XnUserID			nId,
-                                                XnFloat				/*fTime*/,
-                                                void*				pCookie)
-{
-	printf("Lost Hand: %d\n", nId);
-    numTrackingHands--;
-}
-
-void XN_CALLBACK_TYPE Gesture_Recognized(	xn::GestureGenerator&	/*generator*/,
-                                                      const XnChar*			strGesture,
-                                                      const XnPoint3D*		pIDPosition,
-                                                      const XnPoint3D*		pEndPosition,
-                                                      void*					pCookie)
-{
-    if (numTrackingHands > 0)
-        return;
-	printf("Gesture recognized: %s\n", strGesture);
-    //REMOVE_ALL_GESTURES;
-     gHandsGenerator.StartTracking(*pEndPosition);
-}
-
-static void XN_CALLBACK_TYPE Gesture_Process(	xn::GestureGenerator&	/*generator*/,
-                                             const XnChar*			/*strGesture*/,
-                                             const XnPoint3D*		/*pPosition*/,
-                                             XnFloat					/*fProgress*/,
-                                             void*					/*pCookie*/)	{}
-
 void drawFunctionMain()
 {
     drawFrame();
@@ -822,6 +751,8 @@ int main(int argc, char* argv[])
 	//createMenu();
 
     atexit(onExit);
+    
+    //Use built in hand tracker class to handle all hand movements and gestures
     HandTracker mainHandTracker(g_Context);
     m_HandTracker = &mainHandTracker;
     
@@ -835,69 +766,8 @@ int main(int argc, char* argv[])
     g_Context.FindExistingNode(XN_NODE_TYPE_DEPTH, depth);
     
     depth.GetAlternativeViewPointCap().SetViewPoint(test);
-    /*rc = g_Context.FindExistingNode(XN_NODE_TYPE_HANDS,gHandsGenerator);
-    bool bHandsGenerator = (rc != XN_STATUS_OK);
-    if (bHandsGenerator)
-    {
-        rc = gHandsGenerator.Create(g_Context);
-        //CHECK_RC(rc, bHandsGenerator, "Find hands generator");
-        XnCallbackHandle hHandsCallbacks;
-        gHandsGenerator.RegisterHandCallbacks(Hand_Create, Hand_Update, Hand_Destroy, 0, hHandsCallbacks);
-        /*XnCallbackHandle h;
-        if (gHandsGenerator.IsCapabilitySupported(XN_CAPABILITY_HAND_TOUCHING_FOV_EDGE))
-        {
-            gHandsGenerator.GetHandTouchingFOVEdgeCap().RegisterToHandTouchingFOVEdge(TouchingCallback, NULL, h);
-        }*/
-    //}
-    // Create generators
-	/*rc = gGestureGenerator.Create(g_Context);
-	if (rc != XN_STATUS_OK)
-	{
-		printf("Unable to create GestureGenerator.");
-		return rc;
-	}
-    
-    XnCallbackHandle hHandsCallbacks;
-    ADD_ALL_GESTURES
-    rc = gGestureGenerator.RegisterGestureCallbacks(Gesture_Recognized, Gesture_Process, 0, hHandsCallbacks);
-    if (rc != XN_STATUS_OK)
-    {
-        printf("Unable to register gesture callbacks.");
-        return rc;
-    }*/
-    
-    //m_HandTracker->Init(startingLeftHand, startingRightHand);
-    //m_HandTracker->Run();
-    
-    //Take depth snapshot
-    //Look for localized changes in depth
-    //If you see one, use that as a starting point for hand tracking
-    
-    //const DepthMetaData* pDepthMD = getDepthMetaData();
-    //const XnDepthPixel* pDepth = pDepthMD->Data();
-    //Diff this against our current depth
     
     glutMainLoop();
     
-	/*SimpleViewer& viewer = HandViewer::CreateInstance(g_Context);
-    XnSkeletonJointTransformation leftHand;
-        XnSkeletonJointTransformation rightHand;
-    viewer.setHandStartingLocations(leftHand, rightHand);
-	rc = viewer.Init(argc, argv);
-	if (rc != XN_STATUS_OK)
-	{
-		printf("Viewer init failed: %s\n", xnGetStatusString(rc));
-		return 1;
-	}
-    
-	rc = viewer.Run();
-	if (rc != XN_STATUS_OK)
-	{
-		printf("Viewer run failed: %s\n", xnGetStatusString(rc));
-		return 1;
-	}*/
-    
 	return 0;
-    
 }
-

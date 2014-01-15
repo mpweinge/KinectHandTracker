@@ -121,11 +121,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357476.412946"
+         timestampString = "411512923.620165"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "776"
-         endingLineNumber = "776"
+         startingLineNumber = "705"
+         endingLineNumber = "705"
          landmarkName = "main(int argc, char* argv[])"
          landmarkType = "7">
       </FileBreakpoint>
@@ -134,11 +134,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357476.412946"
+         timestampString = "411512923.620165"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "773"
-         endingLineNumber = "773"
+         startingLineNumber = "702"
+         endingLineNumber = "702"
          landmarkName = "main(int argc, char* argv[])"
          landmarkType = "7">
       </FileBreakpoint>
@@ -199,37 +199,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404360848.278878"
+         timestampString = "411512923.620165"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "867"
-         endingLineNumber = "867"
-         landmarkName = "main(int argc, char* argv[])"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404360848.278878"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "843"
-         endingLineNumber = "843"
-         landmarkName = "main(int argc, char* argv[])"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404360848.278878"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "837"
-         endingLineNumber = "837"
+         startingLineNumber = "768"
+         endingLineNumber = "768"
          landmarkName = "main(int argc, char* argv[])"
          landmarkType = "7">
       </FileBreakpoint>
@@ -243,45 +217,6 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "77"
          endingLineNumber = "77">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357476.412946"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "693"
-         endingLineNumber = "693"
-         landmarkName = "Hand_Update( xn::HandsGenerator&amp; /*generator*/, XnUserID nId, const XnPoint3D* pPosition, XnFloat /*fTime*/, void* pCookie)"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357476.412946"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "701"
-         endingLineNumber = "701"
-         landmarkName = "Hand_Destroy( xn::HandsGenerator&amp; /*generator*/, XnUserID nId, XnFloat /*fTime*/, void* pCookie)"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404360848.278878"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "840"
-         endingLineNumber = "840"
-         landmarkName = "main(int argc, char* argv[])"
-         landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "No"
@@ -319,71 +254,6 @@
          endingLineNumber = "78"
          landmarkName = "HandTracker::Gesture_Recognized( xn::GestureGenerator&amp; /*generator*/, const XnChar* strGesture, const XnPoint3D* /*pIDPosition*/, const XnPoint3D* pEndPosition, void* pCookie)"
          landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357498.530375"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "702"
-         endingLineNumber = "702"
-         landmarkName = "Hand_Destroy( xn::HandsGenerator&amp; /*generator*/, XnUserID nId, XnFloat /*fTime*/, void* pCookie)"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357501.952114"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "660"
-         endingLineNumber = "660"
-         landmarkName = "Hand_Create( xn::HandsGenerator&amp; /*generator*/, XnUserID nId, const XnPoint3D* pPosition, XnFloat /*fTime*/, void* pCookie)"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357521.0036"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "712"
-         endingLineNumber = "712"
-         landmarkName = "Gesture_Recognized( xn::GestureGenerator&amp; /*generator*/, const XnChar* strGesture, const XnPoint3D* pIDPosition, const XnPoint3D* pEndPosition, void* pCookie)"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357607.071337"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "714"
-         endingLineNumber = "714"
-         landmarkName = "Gesture_Recognized( xn::GestureGenerator&amp; /*generator*/, const XnChar* strGesture, const XnPoint3D* pIDPosition, const XnPoint3D* pEndPosition, void* pCookie)"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "KinectHandTracker_CommandLine/main.cpp"
-         timestampString = "404357607.755756"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "716"
-         endingLineNumber = "716"
-         landmarkName = "Gesture_Recognized( xn::GestureGenerator&amp; /*generator*/, const XnChar* strGesture, const XnPoint3D* pIDPosition, const XnPoint3D* pEndPosition, void* pCookie)"
-         landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "No"
@@ -499,7 +369,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "2293"
          endingLineNumber = "2293"
-         landmarkName = "drawFrame()"
+         landmarkName = "drawUserInput(bool bCursor)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -512,7 +382,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "2301"
          endingLineNumber = "2301"
-         landmarkName = "drawFrame()"
+         landmarkName = "drawUserInput(bool bCursor)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -525,7 +395,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "2307"
          endingLineNumber = "2307"
-         landmarkName = "drawFrame()"
+         landmarkName = "drawUserInput(bool bCursor)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -538,7 +408,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "2296"
          endingLineNumber = "2296"
-         landmarkName = "drawFrame()"
+         landmarkName = "drawUserInput(bool bCursor)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -551,7 +421,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "637"
          endingLineNumber = "637"
-         landmarkName = "drawCursorMoved(IntPair location)"
+         landmarkName = "drawSelectionChanged(SelectionState state, IntRect SoapSelection, IntRect TowelSelection, int iActiveSelection)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -731,7 +601,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "341"
          endingLineNumber = "341"
-         landmarkName = "GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float &amp; pOutput[XDepthGrid][YDepthGrid], int kernelSize)"
+         landmarkName = "GaussianFilter(int pDepthDiffMap[XDepthGrid][YDepthGrid], float pOutput[XDepthGrid][YDepthGrid], int kernelSize)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -835,7 +705,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "404"
          endingLineNumber = "404"
-         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; slope, float &amp; intercept)"
+         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; xSlope, float &amp; ySlope, float &amp; xIntercept, float &amp; yIntercept)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -861,7 +731,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "417"
          endingLineNumber = "417"
-         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; slope, float &amp; intercept)"
+         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; xSlope, float &amp; ySlope, float &amp; xIntercept, float &amp; yIntercept)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -874,7 +744,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "425"
          endingLineNumber = "425"
-         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; slope, float &amp; intercept)"
+         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; xSlope, float &amp; ySlope, float &amp; xIntercept, float &amp; yIntercept)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -887,7 +757,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "426"
          endingLineNumber = "426"
-         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; slope, float &amp; intercept)"
+         landmarkName = "CalculateLinearRegression(float pInput[XDepthGrid][YDepthGrid], float &amp; xSlope, float &amp; ySlope, float &amp; xIntercept, float &amp; yIntercept)"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
